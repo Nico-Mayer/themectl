@@ -30,7 +30,8 @@ func (i Wallpaper) Apply(themeInfo model.ThemeInfo) error {
 	sourceDirs := collectWallpaperSourceDirs(cfg, themeInfo)
 	candidates := collectWallpaperCandidates(sourceDirs)
 	if len(candidates) == 0 {
-		return fmt.Errorf("no wallpaper files found for theme %q", themeInfo.Name)
+		logger.Warn("no wallpaper files found skipping...", "theme", themeInfo.Name)
+		return nil
 	}
 
 	current, _ := wallpaper.Get()
