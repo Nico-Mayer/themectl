@@ -14,7 +14,7 @@ import (
 type Settings struct {
 	Integrations []string          `json:"integrations"`
 	DefaultTheme string            `json:"default-theme,omitempty"`
-	ConfigPaths  map[string]string `json:"configpaths,omitempty"`
+	ConfigDirs   map[string]string `json:"configdirs,omitempty"`
 }
 
 func DefaultSettings() Settings {
@@ -34,10 +34,11 @@ func DefaultSettings() Settings {
 			"nvim",
 			"helix",
 		},
-		ConfigPaths: map[string]string{
-			"ghostty": filepath.Join(userHome, ".config", "ghostty", "config.ghostty"),
-			"zed":     zedConfigPath(userHome),
-			"helix":   filepath.Join(userHome, ".config", "helix", "config.toml"),
+		ConfigDirs: map[string]string{
+			"ghostty": filepath.Join(userHome, ".config", "ghostty"),
+			"zed":     zedConfigDir(userHome),
+			"helix":   filepath.Join(userHome, ".config", "helix"),
+			"yazi":    yaziConfigDir(userHome),
 		},
 	}
 }
@@ -61,12 +62,12 @@ func LoadSettings(path string) (Settings, error) {
 	return defaults, nil
 }
 
-func (s Settings) ConfigPathFor(integration string) string {
-	if s.ConfigPaths == nil {
+func (s Settings) ConfigDirFor(integration string) string {
+	if s.ConfigDirs == nil {
 		return ""
 	}
 
-	path, ok := s.ConfigPaths[integration]
+	path, ok := s.ConfigDirs[integration]
 	if !ok {
 		return ""
 	}
@@ -96,7 +97,7 @@ func (s Settings) ConfigPathFor(integration string) string {
 	return path
 }
 
-func zedConfigPath(userHome string) string {
+func zedConfigDir(userHome string) string {
 	platform := runtime.GOOS
 
 	configHome, err := os.UserConfigDir()
@@ -105,8 +106,22 @@ func zedConfigPath(userHome string) string {
 	}
 
 	if platform == "windows" {
-		return filepath.Join(configHome, "zed", "settings.json")
+		return filepath.Join(configHome, "zed")
 	}
 
-	return filepath.Join(userHome, ".config", "zed", "settings.json")
+	return filepath.Join(userHome, ".config", "zed")
+}
+
+func yaziConfigDir(userHome string) string {
+	platform := runtime.GOOS
+
+	if platform == "windows" {
+		configHome, err := os.UserConfigDir()
+		if err != nil {
+			return ""
+		}
+		return filepath.Join(configHome, "yazi", "config")
+	}
+
+	return filepath.Join(userHome, ".config", "yazi")
 }

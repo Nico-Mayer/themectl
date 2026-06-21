@@ -34,10 +34,8 @@ func (i Ghostty) Apply(themeInfo model.ThemeInfo) error {
 		return fmt.Errorf("load config: %w", err)
 	}
 
-	ghosttyConfigPath := cfg.ConfigPathFor(i.Name())
-	if ghosttyConfigPath == "" {
-		ghosttyConfigPath = filepath.Join(os.Getenv("HOME"), ".config", "ghostty", "config.ghostty")
-	}
+	ghosttyConfigDir := cfg.ConfigDirFor(i.Name())
+	ghosttyConfigPath := filepath.Join(ghosttyConfigDir, "config.ghostty")
 
 	logger.Debug("updating theme", "ghostty_theme", ghosttyThemeOverride)
 

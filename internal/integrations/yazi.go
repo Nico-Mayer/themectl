@@ -23,22 +23,23 @@ func (Yazi) Name() string {
 func (i Yazi) Apply(themeInfo model.ThemeInfo) error {
 	logger := integrationLogger(i)
 
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		return fmt.Errorf("resolve user home dir: %w", err)
-	}
-
 	cfg, err := config.Get()
 	if err != nil {
 		return fmt.Errorf("load config: %w", err)
 	}
 
+	configDir := cfg.ConfigDirFor(i.Name())
+
 	sourcePath := filepath.Join(cfg.Paths.CurrentThemeDir, "yazi-flavor.toml")
-	targetDir := filepath.Join(userHomeDir, ".config", "yazi", "flavors", "themectl.yazi")
+	targetDir := filepath.Join(configDir, "flavors", "themectl.yazi")
 	linkPath := filepath.Join(targetDir, "flavor.toml")
 
 	if err := os.MkdirAll(targetDir, 0o755); err != nil {
 		return fmt.Errorf("create yazi flavor directory %q: %w", targetDir, err)
+	}
+
+	if err := os.Remove(linkPath); err != nil {
+		logger.Warn("Failed to remove old symlink target %s", linkPath)
 	}
 
 	if err := os.Symlink(sourcePath, linkPath); err != nil {

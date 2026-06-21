@@ -88,10 +88,8 @@ func (i Zed) Apply(themeInfo model.ThemeInfo) error {
 		return fmt.Errorf("load config: %w", err)
 	}
 
-	zedSettingsPath := cfg.Settings.ConfigPathFor(i.Name())
-	if zedSettingsPath == "" {
-		zedSettingsPath = filepath.Join(os.Getenv("HOME"), ".config", "zed", "settings.json")
-	}
+	zedSettingsDir := cfg.Settings.ConfigDirFor(i.Name())
+	zedSettingsPath := filepath.Join(zedSettingsDir, "settings.json")
 
 	data, err := os.ReadFile(zedSettingsPath)
 	if err != nil {

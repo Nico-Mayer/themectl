@@ -33,10 +33,8 @@ func (i Helix) Apply(themeInfo model.ThemeInfo) error {
 		return fmt.Errorf("load config: %w", err)
 	}
 
-	helixConfigPath := cfg.Settings.ConfigPathFor(i.Name())
-	if helixConfigPath == "" {
-		helixConfigPath = filepath.Join(os.Getenv("HOME"), ".config", "helix", "config.toml")
-	}
+	helixConfigDir := cfg.Settings.ConfigDirFor(i.Name())
+	helixConfigPath := filepath.Join(helixConfigDir, "config.toml")
 
 	logger.Debug("updating theme,", "helix_theme", helixThemeOverride)
 	data, err := os.ReadFile(helixConfigPath)
