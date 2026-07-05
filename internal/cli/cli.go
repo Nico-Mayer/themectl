@@ -4,7 +4,9 @@ import (
 	"context"
 	"log/slog"
 	"os"
+	"time"
 
+	"github.com/lmittmann/tint"
 	"github.com/nico-mayer/themectl-cli/internal/config"
 	"github.com/nico-mayer/themectl-cli/internal/engine"
 	"github.com/nico-mayer/themectl-cli/internal/theme"
@@ -31,7 +33,13 @@ func New(cfg config.Config, store *theme.Store, engine *engine.Engine) *urfaveCl
 			if c.Bool("verbose") {
 				level = slog.LevelDebug
 			}
-			slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: level})))
+			// slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: level})))
+			slog.SetDefault(slog.New(
+				tint.NewHandler(os.Stderr, &tint.Options{
+					Level:      level,
+					TimeFormat: time.Kitchen,
+				}),
+			))
 			return nil, nil
 		},
 	}
