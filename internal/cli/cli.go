@@ -10,7 +10,8 @@ import (
 func New(cfg config.Config, store *theme.Store, engine *engine.Engine) *urfaveCli.Command {
 	return &urfaveCli.Command{
 		Commands: []*urfaveCli.Command{
-			listCommand(store),
+			listCmd(store),
+			setCmd(cfg, store, engine),
 		},
 	}
 }

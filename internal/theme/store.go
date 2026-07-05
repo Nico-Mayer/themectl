@@ -45,10 +45,46 @@ func (s *Store) Resolve(id string) (Resolved, error) {
 
 	return Resolve(family, variant)
 }
+
 func (s *Store) List(family string) ([]string, error) {
 	entries, err := fs.ReadDir(s.fsys, family)
 	if err != nil {
 		return []string{}, fmt.Errorf("read family %q: %w", family, err)
+	}
+
+	var out []string
+	for _, e := range entries {
+		if e.IsDir() && !(e.Name() == "wallpaper") {
+			out = append(out, e.Name())
+		}
+	}
+	sort.Strings(out)
+	return out, nil
+}
+
+func (s *Store) ListAll() ([]string, error) {
+	families, err := s.allFamilies()
+	if err != nil {
+		return nil, err
+	}
+
+	var out []string
+	for _, fam := range families {
+		variants, err := s.List(fam)
+		if err != nil {
+			return nil, err
+		}
+		for _, v := range variants {
+			out = append(out, fam+"/"+v)
+		}
+	}
+	return out, nil
+}
+
+func (s *Store) allFamilies() ([]string, error) {
+	entries, err := fs.ReadDir(s.fsys, ".")
+	if err != nil {
+		return nil, fmt.Errorf("read themes root: %w", err)
 	}
 
 	var out []string
@@ -58,6 +94,7 @@ func (s *Store) List(family string) ([]string, error) {
 		}
 	}
 	sort.Strings(out)
+
 	return out, nil
 }
 

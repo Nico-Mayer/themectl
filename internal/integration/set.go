@@ -1,13 +1,15 @@
 package integration
 
 import (
+	"path/filepath"
+
 	"github.com/nico-mayer/themectl-cli/internal/config"
 )
 
 func Enabled(cfg config.Config) []Integration {
 	available := map[string]func() Integration{
 		"ghostty": func() Integration {
-			return Ghostty{ConfigPath: cfg.Settings.ConfigDirFor("ghostty") + "config.ghostty"}
+			return Ghostty{ConfigPath: filepath.Join(cfg.Settings.ConfigDirFor("ghostty"), "config.ghostty")}
 		},
 	}
 
