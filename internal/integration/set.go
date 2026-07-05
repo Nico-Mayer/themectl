@@ -11,8 +11,14 @@ func Enabled(cfg config.Config) []Integration {
 		"ghostty": func() Integration {
 			return Ghostty{ConfigPath: filepath.Join(cfg.Settings.ConfigDirFor("ghostty"), "config.ghostty")}
 		},
+		"helix": func() Integration {
+			return Helix{ConfigPath: filepath.Join(cfg.Settings.ConfigDirFor("helix"), "config.toml")}
+		},
 		"eza": func() Integration {
-			return Eza{}
+			return Eza{Cfg: cfg}
+		},
+		"yazi": func() Integration {
+			return Yazi{Cfg: cfg}
 		},
 	}
 

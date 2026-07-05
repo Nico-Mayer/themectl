@@ -11,10 +11,14 @@ import (
 
 func setCmd(cfg config.Config, store *theme.Store, eng *engine.Engine) *cli.Command {
 	return &cli.Command{
-		Name: "set",
+		Name:      "set",
+		Aliases:   []string{"use", "apply"},
+		Usage:     "Set the active theme",
+		ArgsUsage: "<theme>",
 		Arguments: []cli.Argument{
 			&cli.StringArg{
-				Name: "theme",
+				Name:      "theme",
+				UsageText: "theme name (see 'themectl list')",
 			},
 		},
 		Action: func(ctx context.Context, c *cli.Command) error {

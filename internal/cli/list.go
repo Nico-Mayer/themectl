@@ -10,7 +10,9 @@ import (
 
 func listCmd(store *theme.Store) *cli.Command {
 	return &cli.Command{
-		Name: "list",
+		Name:    "list",
+		Aliases: []string{"ls"},
+		Usage:   "List all available themes",
 		Action: func(ctx context.Context, c *cli.Command) error {
 			all, _ := store.ListAll()
 
