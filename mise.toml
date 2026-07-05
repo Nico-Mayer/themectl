@@ -1,0 +1,5 @@
+[tasks.deploy]
+description = "Build the binary and link it to user bin dir"
+run = """
+go build -o themectl
+"""

@@ -18,7 +18,7 @@ func New(cfg config.Config, store *theme.Store, engine *engine.Engine) *urfaveCl
 		Flags: []urfaveCli.Flag{
 			&urfaveCli.BoolFlag{
 				Name:    "verbose",
-				Usage:   "Prints more logs to stder",
+				Usage:   "Prints more logs to stderr",
 				Aliases: []string{"v"},
 			},
 		},
