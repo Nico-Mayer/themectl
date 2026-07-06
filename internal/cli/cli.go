@@ -29,11 +29,15 @@ func New(cfg config.Config, store *theme.Store, engine *engine.Engine) *urfaveCl
 		},
 		Before: func(ctx context.Context, c *urfaveCli.Command) (context.Context, error) {
 			level := slog.LevelInfo
+			withTime := false
 			if c.Bool("verbose") {
 				level = slog.LevelDebug
+				withTime = true
 			}
 			handler := log.NewWithOptions(os.Stderr, log.Options{
-				Level: log.Level(level),
+				Level:           log.Level(level),
+				ReportTimestamp: withTime,
+				TimeFormat:      "15:04:05",
 			})
 			slog.SetDefault(slog.New(handler))
 

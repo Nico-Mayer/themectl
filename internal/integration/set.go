@@ -14,6 +14,9 @@ func Enabled(cfg config.Config) []Integration {
 		"helix": func() Integration {
 			return Helix{ConfigPath: filepath.Join(cfg.Settings.ConfigDirFor("helix"), "config.toml")}
 		},
+		"nvim": func() Integration {
+			return Nvim{Cfg: cfg}
+		},
 		"eza": func() Integration {
 			return Eza{Cfg: cfg}
 		},
