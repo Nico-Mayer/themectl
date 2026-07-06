@@ -49,7 +49,7 @@ func defaultSettings() Settings {
 		Integrations: []string{
 			"ghostty",
 			"zed",
-			"system-theme",
+			"system-appearance",
 			"wallpaper",
 			"yazi",
 			"eza",

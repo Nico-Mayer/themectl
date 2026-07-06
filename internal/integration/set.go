@@ -20,6 +20,9 @@ func Enabled(cfg config.Config) []Integration {
 		"yazi": func() Integration {
 			return Yazi{Cfg: cfg}
 		},
+		"system-appearance": func() Integration {
+			return SystemAppearance{}
+		},
 	}
 
 	var out []Integration
