@@ -26,6 +26,12 @@ func Enabled(cfg config.Config) []Integration {
 		"system-appearance": func() Integration {
 			return SystemAppearance{}
 		},
+		"wallpaper": func() Integration {
+			return Wallpaper{
+				ThemesDir:           cfg.ThemesDir(),
+				SharedWallpapersDir: cfg.SharedWallpapersDir(),
+			}
+		},
 	}
 
 	var out []Integration

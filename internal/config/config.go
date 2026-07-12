@@ -7,9 +7,10 @@ type Config struct {
 	Settings Settings
 }
 
-func (c Config) ThemesDir() string   { return filepath.Join(c.Root, "themes") }
-func (c Config) CurrentDir() string  { return filepath.Join(c.Root, "current") }
-func (c Config) CurrentFile() string { return filepath.Join(c.Root, ".current") }
+func (c Config) ThemesDir() string           { return filepath.Join(c.Root, "themes") }
+func (c Config) CurrentDir() string          { return filepath.Join(c.Root, "current") }
+func (c Config) CurrentFile() string         { return filepath.Join(c.Root, ".current") }
+func (c Config) SharedWallpapersDir() string { return filepath.Join(c.Root, "shared_wallpapers") }
 
 func Load(root string) (Config, error) {
 	s, err := loadSettings(filepath.Join(root, "themectl.toml"))

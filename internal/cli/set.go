@@ -30,7 +30,7 @@ func setCmd(cfg config.Config, store *theme.Store, eng *engine.Engine) *cli.Comm
 				return err
 			}
 			slog.Debug("materializing theme", "theme", themeName, "dir", cfg.CurrentDir())
-			if err := store.Materialize(themeName, cfg.CurrentDir()); err != nil {
+			if err := store.Materialize(res.ID(), cfg.CurrentDir()); err != nil {
 				return err
 			}
 			if err := eng.Apply(res); err != nil {

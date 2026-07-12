@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	"log"
 	"os"
-	"path"
+	"path/filepath"
 
+	"github.com/charmbracelet/log"
 	"github.com/nico-mayer/themectl-cli/internal/cli"
 	"github.com/nico-mayer/themectl-cli/internal/config"
 	"github.com/nico-mayer/themectl-cli/internal/engine"
@@ -31,5 +31,5 @@ func main() {
 
 func defaultRoot() string {
 	userHome, _ := os.UserHomeDir()
-	return path.Join(userHome, ".config", "themectl")
+	return filepath.Join(userHome, ".config", "themectl")
 }
