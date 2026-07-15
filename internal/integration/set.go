@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"os"
 	"path/filepath"
 
 	"github.com/nico-mayer/themectl-cli/internal/config"
@@ -30,6 +31,18 @@ func Enabled(cfg config.Config) []Integration {
 			return Wallpaper{
 				ThemesDir:           cfg.ThemesDir(),
 				SharedWallpapersDir: cfg.SharedWallpapersDir(),
+			}
+		},
+		"zed": func() Integration {
+			zedDir := cfg.Settings.ConfigDirFor("zed")
+			// TODO: improve this by moving to cfg
+			usercfgDir, _ := os.UserConfigDir()
+			return Zed{
+				SettingsPath: filepath.Join(zedDir, "settings.json"),
+				CurrentDir:   cfg.CurrentDir(),
+				Installer: gitInstaller{
+					extensionsDir: filepath.Join(usercfgDir, "Zed", "extensions", "installed"),
+				},
 			}
 		},
 	}
