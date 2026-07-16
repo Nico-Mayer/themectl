@@ -2,6 +2,7 @@ package theme
 
 import (
 	"reflect"
+	"slices"
 	"testing"
 	"testing/fstest"
 )
@@ -139,4 +140,44 @@ func TestStore_Resolve_badID(t *testing.T) {
 	if _, err := s.Resolve("nofamilyslash"); err == nil {
 		t.Error("expected error for id without a slash")
 	}
+}
+
+func TestStore_PickRandom(t *testing.T) {
+	s := NewStore(testFS())
+
+	t.Run("pick the only dark theme", func(t *testing.T) {
+		got, err := s.PickRandom(new(Dark))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got.ID() != "catppuccin/mocha" {
+			t.Errorf("dark pick = %q, want catppuccin/mocha", got.ID())
+		}
+	})
+
+	t.Run("pick the only light theme", func(t *testing.T) {
+		got, err := s.PickRandom(new(Light))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got.ID() != "catppuccin/latte" {
+			t.Errorf("light pick = %q, want catppuccin/latte", got.ID())
+		}
+	})
+
+	t.Run("no appearance picks any known theme", func(t *testing.T) {
+		all, err := s.ListAll()
+		if err != nil {
+			t.Fatal(err)
+		}
+		for range 20 {
+			got, err := s.PickRandom(nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !slices.Contains(all, got.ID()) {
+				t.Fatalf("picked %q, not in %v", got.ID(), all)
+			}
+		}
+	})
 }

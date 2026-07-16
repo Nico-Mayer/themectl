@@ -8,9 +8,12 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/BurntSushi/toml"
 )
+
+const installCheckTTL = 30 * 24 * time.Hour
 
 type gitInstaller struct {
 	extensionsDir string
@@ -21,12 +24,17 @@ func (g gitInstaller) Ensure(ref ExtensionRef) error {
 		return fmt.Errorf("ensure extensions dir: %w", err)
 	}
 
+	marker := g.markerPath(ref.URL)
+	if info, err := os.Stat(marker); err != nil && time.Since(info.ModTime()) < installCheckTTL {
+		return nil
+	}
+
 	head, err := remoteHead(ref.URL)
 	if err != nil {
 		return err
 	}
-	marker := g.markerPath(ref.URL)
 	if prev, _ := os.ReadFile(marker); string(prev) == head {
+		_ = os.Chtimes(marker, time.Now(), time.Now())
 		return nil
 	}
 

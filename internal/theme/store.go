@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"io/fs"
 	"maps"
+	"math/rand/v2"
 	"path/filepath"
 	"slices"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/BurntSushi/toml"
 )
@@ -79,6 +81,52 @@ func (s *Store) ListAll() ([]string, error) {
 		}
 	}
 	return out, nil
+}
+
+func (s *Store) resolveAll() ([]Resolved, error) {
+	all, err := s.ListAll()
+	if err != nil {
+		return nil, err
+	}
+
+	ch := make(chan Resolved, len(all))
+	var wg sync.WaitGroup
+	for _, themeID := range all {
+		wg.Go(func() {
+			if res, err := s.Resolve(themeID); err == nil {
+				ch <- res
+			}
+		})
+	}
+	wg.Wait()
+	close(ch)
+
+	var out []Resolved
+	for r := range ch {
+		out = append(out, r)
+	}
+
+	return out, nil
+}
+
+func (s *Store) PickRandom(a *Appearance) (Resolved, error) {
+	all, err := s.resolveAll()
+	if err != nil {
+		return Resolved{}, err
+	}
+
+	var candidates []Resolved
+	for _, res := range all {
+		if a == nil || res.Appearance == *a {
+			candidates = append(candidates, res)
+		}
+	}
+
+	if len(candidates) == 0 {
+		return Resolved{}, fmt.Errorf("no matching candidates found for appearance %v", a)
+	}
+
+	return candidates[rand.IntN(len(candidates))], nil
 }
 
 func (s *Store) allFamilies() ([]string, error) {

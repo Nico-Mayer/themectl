@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"log"
 	"os"
 	"path/filepath"
 
@@ -35,13 +36,17 @@ func Enabled(cfg config.Config) []Integration {
 		},
 		"zed": func() Integration {
 			zedDir := cfg.Settings.ConfigDirFor("zed")
-			// TODO: improve this by moving to cfg
-			usercfgDir, _ := os.UserConfigDir()
+			usrConfigDir, err := os.UserConfigDir()
+			if err != nil {
+				log.Fatalf("User Config home not set Integration: %q err: %v", "zed", err)
+			}
+			zedExtensionDir := filepath.Join(usrConfigDir, "Zed", "extensions", "installed")
+
 			return Zed{
 				SettingsPath: filepath.Join(zedDir, "settings.json"),
 				CurrentDir:   cfg.CurrentDir(),
 				Installer: gitInstaller{
-					extensionsDir: filepath.Join(usercfgDir, "Zed", "extensions", "installed"),
+					extensionsDir: zedExtensionDir,
 				},
 			}
 		},
