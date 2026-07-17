@@ -6,17 +6,17 @@ import (
 )
 
 type Spec struct {
-	Appearance *Appearance       `toml:"appearance"`
-	Themes     map[string]string `toml:"themes"`
+	Appearance *Appearance       `toml:"appearance,omitempty" jsonschema:"description=Appearance of this variant. Falls back to the family default; resolving fails if neither sets it."`
+	Themes     map[string]string `toml:"themes,omitempty" jsonschema:"description=Per-integration theme names keyed by integration. Overrides the family defaults."`
 }
 
 type FamilyFile struct {
-	Defaults Spec `toml:"defaults"`
+	Defaults Spec `toml:"defaults,omitempty" jsonschema:"description=Defaults inherited by every variant; a variant may override any of them."`
 }
 
 type VariantFile struct {
 	Spec
-	WallpaperSources []string `toml:"wallpaper_sources"`
+	WallpaperSources []string `toml:"wallpaper_sources,omitempty" jsonschema:"description=Extra wallpaper sources: theme ids (family/variant) or shared wallpaper dir names. The variant's own wallpaper dir is always included.,uniqueItems=ture"`
 }
 
 type Family struct {

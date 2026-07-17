@@ -3,6 +3,8 @@ package theme
 import (
 	"fmt"
 	"strings"
+
+	"github.com/invopop/jsonschema"
 )
 
 type Appearance string
@@ -21,4 +23,11 @@ func ParseAppearance(s string) (Appearance, error) {
 		return Light, nil
 	}
 	return "", fmt.Errorf("invalid appearance %q: want %q or %q", s, Light, Dark)
+}
+
+func (Appearance) JSONSchema() *jsonschema.Schema {
+	return &jsonschema.Schema{
+		Type: "string",
+		Enum: []any{string(Dark), string(Light)},
+	}
 }

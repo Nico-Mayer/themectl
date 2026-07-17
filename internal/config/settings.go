@@ -12,9 +12,9 @@ import (
 )
 
 type Settings struct {
-	Integrations []string          `toml:"integrations"`
-	DefaultTheme string            `toml:"default-theme,omitempty"`
-	ConfigDirs   map[string]string `toml:"config-dirs,omitempty"`
+	Integrations []string          `toml:"integrations,omitempty" jsonschema:"description=Integrations to run on theme apply. Replaces the default list.,uniqueItems=true"`
+	DefaultTheme string            `toml:"default-theme,omitempty" jsonschema:"pattern=^[^/]+/[^/]+$,description=Theme id in family/variant form."`
+	ConfigDirs   map[string]string `toml:"config-dirs,omitempty" jsonschema:"description=Per-integration config dir overrides. Supports env vars ($VAR) and a leading ~."`
 }
 
 func loadSettings(path string) (Settings, error) {

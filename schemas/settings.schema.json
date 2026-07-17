@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/Nico-Mayer/themectl-cli/main/schemas/settings.schema.json",
+  "properties": {
+    "integrations": {
+      "items": {
+        "type": "string",
+        "enum": [
+          "eza",
+          "ghostty",
+          "helix",
+          "nvim",
+          "system-appearance",
+          "wallpaper",
+          "yazi",
+          "zed"
+        ]
+      },
+      "type": "array",
+      "uniqueItems": true,
+      "description": "Integrations to run on theme apply. Replaces the default list."
+    },
+    "default-theme": {
+      "type": "string",
+      "pattern": "^[^/]+/[^/]+$",
+      "description": "Theme id in family/variant form."
+    },
+    "config-dirs": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object",
+      "description": "Per-integration config dir overrides. Supports env vars ($VAR) and a leading ~."
+    }
+  },
+  "additionalProperties": false,
+  "type": "object",
+  "title": "themectl.toml",
+  "description": "themectl settings. Values set here override the built-in defaults."
+}
