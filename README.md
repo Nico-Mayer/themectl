@@ -45,10 +45,9 @@ appearance = "dark"
 
 - [ ] VSCode
 - [ ] Other terminal emulators _(low)_
-- [ ] Chromium — verify feasibility, may need elevated privileges on macOS to set policies (Helium and other Chromium forks)
+- [ ] Chromium verify feasibility, may need elevated privileges on macOS to set policies (Helium and other Chromium forks)
 
 ### Quick wins
 
 - [ ] `reapply` / `refresh` re-run integrations for the current theme without changing it
 - [ ] `list` filters + active marker — `--light` / `--dark`, `*` on the active theme
-- [ ] `wallpaper set <file>` + `wallpaper list [theme]` direct control and discovery

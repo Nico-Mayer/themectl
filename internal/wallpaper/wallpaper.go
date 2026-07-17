@@ -86,7 +86,7 @@ func (m Manager) collectSourceDirs(theme theme.Resolved) []string {
 	}
 	slices.Sort(sources)
 
-	return sources
+	return slices.Compact(sources)
 }
 
 func collectCandidates(sources []string) []string {

@@ -55,6 +55,11 @@ func TestCollectSourceDirs(t *testing.T) {
 			theme: res("does-not-exist"),
 			want:  []string{filepath.Join(themesDir, "catppuccin", "mocha", "wallpaper")},
 		},
+		{
+			name:  "duplicate source resolving to the same dir is collapsed",
+			theme: res("catppuccin/mocha"),
+			want:  []string{filepath.Join(themesDir, "catppuccin", "mocha", "wallpaper")},
+		},
 	}
 
 	for _, tt := range tests {
