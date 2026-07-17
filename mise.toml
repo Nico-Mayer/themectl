@@ -4,4 +4,5 @@ run = """
 echo Build and move to system binaries
 go build -o themectl
 sudo mv -f themectl /usr/local/bin/themectl
+themectl completion fish > ~/.config/fish/completions/themectl.fish
 """
