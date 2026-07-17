@@ -141,7 +141,7 @@ func (s *Store) allFamilies() ([]string, error) {
 			out = append(out, e.Name())
 		}
 	}
-	sort.Strings(out)
+	slices.Sort(out)
 
 	return out, nil
 }

@@ -24,7 +24,6 @@ themectl -v <cmd>             # verbose logs to stderr
 - [ ] Install command to install themes from a GitHub URL
 - [ ] Theme-spec JSON schema for TOML LSP completions
 - [ ] `doctor` / `status` command — report current theme, settings, and which integrations are applied/available
-- [ ] TUI select for `set` when called without args
 - [ ] `--json` output flag for `list` (let others consume it for example read appearance)
 - [ ] Restrict asset copying on materialize to active integrations only, so the current folder doesn't get polluted _(low)_
 

@@ -2,9 +2,11 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 
+	"github.com/charmbracelet/huh"
 	"github.com/nico-mayer/themectl-cli/internal/config"
 	"github.com/nico-mayer/themectl-cli/internal/engine"
 	"github.com/nico-mayer/themectl-cli/internal/theme"
@@ -25,7 +27,14 @@ func setCmd(cfg config.Config, store *theme.Store, eng *engine.Engine) *cli.Comm
 		},
 		Commands: []*cli.Command{setRandom(cfg, store, eng)},
 		Action: func(ctx context.Context, c *cli.Command) error {
-			themeName := c.StringArg("theme")
+			themeName, err := resolveThemeArg(c.StringArg("theme"), store)
+			if errors.Is(err, huh.ErrUserAborted) {
+				return nil
+			}
+			if err != nil {
+				return err
+			}
+
 			slog.Debug("resolving theme", "theme", themeName)
 			res, err := store.Resolve(themeName)
 			if err != nil {
@@ -46,6 +55,13 @@ func setCmd(cfg config.Config, store *theme.Store, eng *engine.Engine) *cli.Comm
 			}
 		},
 	}
+}
+
+func resolveThemeArg(arg string, store *theme.Store) (string, error) {
+	if arg != "" {
+		return arg, nil
+	}
+	return pickTheme(store)
 }
 
 func setRandom(cfg config.Config, store *theme.Store, eng *engine.Engine) *cli.Command {
@@ -103,4 +119,34 @@ func applyTheme(resolvedTheme theme.Resolved, cfg config.Config, store *theme.St
 	}
 	slog.Info("theme set", "theme", resolvedTheme.ID())
 	return nil
+}
+
+func pickTheme(store *theme.Store) (string, error) {
+	all, err := store.ListAll()
+	if err != nil {
+		return "", err
+	}
+
+	options := make([]huh.Option[string], len(all))
+	for i, t := range all {
+		options[i] = huh.NewOption(t, t)
+	}
+
+	var selected string
+	form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewSelect[string]().
+				Title("Themes").
+				Options(options...).
+				Filtering(true).
+				Height(10).
+				Value(&selected),
+		),
+	)
+
+	if err := form.Run(); err != nil {
+		return "", err
+	}
+
+	return selected, nil
 }
