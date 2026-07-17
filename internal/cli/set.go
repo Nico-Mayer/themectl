@@ -33,6 +33,18 @@ func setCmd(cfg config.Config, store *theme.Store, eng *engine.Engine) *cli.Comm
 			}
 			return applyTheme(res, cfg, store, eng)
 		},
+		ShellComplete: func(ctx context.Context, c *cli.Command) {
+			if c.Args().Len() > 0 {
+				return // theme already typed, don't re-suggest
+			}
+			all, err := store.ListAll()
+			if err != nil {
+				return
+			}
+			for _, t := range all {
+				fmt.Fprintln(c.Root().Writer, t)
+			}
+		},
 	}
 }
 

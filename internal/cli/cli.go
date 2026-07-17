@@ -14,8 +14,9 @@ import (
 
 func New(cfg config.Config, store *theme.Store, engine *engine.Engine) *urfaveCli.Command {
 	return &urfaveCli.Command{
-		Name:  "themectl",
-		Usage: "Manage and apply themes across your tools",
+		Name:                  "themectl",
+		Usage:                 "Manage and apply themes across your tools",
+		EnableShellCompletion: true,
 		Flags: []urfaveCli.Flag{
 			&urfaveCli.BoolFlag{
 				Name:    "verbose",
