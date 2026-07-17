@@ -1,4 +1,4 @@
-package integration
+package wallpaper
 
 import (
 	"os"
@@ -61,7 +61,8 @@ func TestCollectingSourceDirs(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			slices.Sort(tc.want)
-			got := collectSourceDirs(sharedWallpapersDir, themesDir, tc.theme)
+			manager := NewManager(themesDir, sharedWallpapersDir)
+			got := manager.collectSourceDirs(tc.theme)
 
 			if !reflect.DeepEqual(got, tc.want) {
 				t.Errorf("got: %v\n want: %v", got, tc.want)
