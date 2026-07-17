@@ -35,8 +35,9 @@ appearance = "dark"
 
 - [ ] Install command to install themes from a GitHub URL
 - [ ] Create theme cmd which opens tui form and generates a folder to work on in themesDir()
-- [ ] `doctor` / `status` command — report current theme, settings, and which integrations are applied/available
+- [ ] `doctor` / `status` command report current theme, settings, and which integrations are applied/available
 - [ ] `--json` output flag for `list` (let others consume it for example read appearance)
+- [ ] Add some sort of release strategie (GoReleaser?)
 - [ ] Restrict asset copying on materialize to active integrations only, so the current folder doesn't get polluted _(low)_
 
 ### Missing integrations
@@ -47,7 +48,7 @@ appearance = "dark"
 
 ### Quick wins
 
-- [ ] `reapply` / `refresh` — re-run integrations for the current theme without changing it
+- [ ] `reapply` / `refresh` re-run integrations for the current theme without changing it
 - [ ] `list` filters + active marker — `--light` / `--dark`, `*` on the active theme
-- [ ] `current --details` — resolved appearance, per-tool theme names, wallpaper sources
-- [ ] `wallpaper set <file>` + `wallpaper list [theme]` — direct control and discovery
+- [ ] `current --details` resolved appearance, per-tool theme names, wallpaper sources
+- [ ] `wallpaper set <file>` + `wallpaper list [theme]` direct control and discovery

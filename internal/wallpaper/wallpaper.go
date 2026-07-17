@@ -60,6 +60,16 @@ func (m Manager) Current() (string, error) {
 	return rjWall.Get()
 }
 
+func (m Manager) Set(p string) error {
+	return rjWall.SetFromFile(p)
+}
+
+func (m Manager) ListCandidates(t theme.Resolved) []string {
+	sources := m.collectSourceDirs(t)
+	candidatest := collectCandidates(sources)
+	return candidatest
+}
+
 func (m Manager) collectSourceDirs(theme theme.Resolved) []string {
 	var sources = []string{}
 	wallSources := append(theme.WallpaperSources, theme.ID())
