@@ -18,7 +18,14 @@ gotestsum ./...
 description = "Generate JSON schema from go stucts"
 run = """
 echo gen schemas...
-go generate
+go generate ./...
+"""
+
+[tasks.check-schemas]
+description = "Regenerate JSON schemas and fail on drift"
+run = """
+go generate ./...
+git diff --exit-code schemas/
 """
 
 [tools]
