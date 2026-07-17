@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -26,14 +27,17 @@ func (g gitInstaller) Ensure(ref ExtensionRef) error {
 
 	marker := g.markerPath(ref.URL)
 	if info, err := os.Stat(marker); err == nil && time.Since(info.ModTime()) < installCheckTTL {
+		slog.Debug("zed extension recently checked, skipping", "url", ref.URL)
 		return nil
 	}
 
+	slog.Debug("checking zed extension for updates", "url", ref.URL)
 	head, err := remoteHead(ref.URL)
 	if err != nil {
 		return err
 	}
 	if prev, _ := os.ReadFile(marker); string(prev) == head {
+		slog.Debug("zed extension up to date", "url", ref.URL)
 		_ = os.Chtimes(marker, time.Now(), time.Now())
 		return nil
 	}
@@ -60,6 +64,7 @@ func (g gitInstaller) Ensure(ref ExtensionRef) error {
 	if err := os.Rename(tmp, target); err != nil {
 		return fmt.Errorf("install extension %q: %w", id, err)
 	}
+	slog.Info("zed extension installed", "extension", id, "url", ref.URL)
 
 	return os.WriteFile(marker, []byte(head), 0o644)
 }

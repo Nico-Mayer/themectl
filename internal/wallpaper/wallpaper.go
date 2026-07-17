@@ -35,6 +35,7 @@ func (m Manager) ApplyRandom(t theme.Resolved) error {
 	candidates := collectCandidates(sources)
 
 	if len(candidates) == 0 {
+		slog.Debug("no wallpaper candidates found", "theme", t.ID(), "sources", sources)
 		return nil
 	}
 
@@ -50,6 +51,7 @@ func (m Manager) ApplyRandom(t theme.Resolved) error {
 	if err != nil {
 		return err
 	}
+	slog.Debug("wallpaper set", "file", selected)
 
 	return nil
 }
@@ -83,7 +85,7 @@ func collectCandidates(sources []string) []string {
 	for _, s := range sources {
 		dir, err := os.ReadDir(s)
 		if err != nil {
-			slog.Debug("failed to read", "dir", s)
+			slog.Debug("failed to read wallpaper dir", "dir", s, "err", err)
 			continue
 		}
 

@@ -49,7 +49,7 @@ func (g Ghostty) Apply(t theme.Resolved) error {
 	}
 
 	if err := reloadGhostty(); err != nil {
-		slog.Warn("Ghostty config reload failed", "err", err)
+		slog.Warn("ghostty config reload failed", "err", err)
 	}
 
 	return nil

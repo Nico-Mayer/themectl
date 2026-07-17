@@ -1,7 +1,7 @@
 package integration
 
 import (
-	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 
@@ -35,20 +35,20 @@ func Enabled(cfg config.Config) []Integration {
 			}
 		},
 		"zed": func() Integration {
-			zedDir := cfg.Settings.ConfigDirFor("zed")
+			z := Zed{
+				SettingsPath: filepath.Join(cfg.Settings.ConfigDirFor("zed"), "settings.json"),
+				CurrentDir:   cfg.CurrentDir(),
+			}
+
 			usrConfigDir, err := os.UserConfigDir()
 			if err != nil {
-				log.Fatalf("User Config home not set Integration: %q err: %v", "zed", err)
+				slog.Warn("zed extension install disabled, user config dir not found", "err", err)
+				return z
 			}
-			zedExtensionDir := filepath.Join(usrConfigDir, "Zed", "extensions", "installed")
-
-			return Zed{
-				SettingsPath: filepath.Join(zedDir, "settings.json"),
-				CurrentDir:   cfg.CurrentDir(),
-				Installer: gitInstaller{
-					extensionsDir: zedExtensionDir,
-				},
+			z.Installer = gitInstaller{
+				extensionsDir: filepath.Join(usrConfigDir, "Zed", "extensions", "installed"),
 			}
+			return z
 		},
 	}
 

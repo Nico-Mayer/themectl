@@ -3,6 +3,7 @@ package theme
 import (
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"maps"
 	"math/rand/v2"
 	"path/filepath"
@@ -93,9 +94,12 @@ func (s *Store) resolveAll() ([]Resolved, error) {
 	var wg sync.WaitGroup
 	for _, themeID := range all {
 		wg.Go(func() {
-			if res, err := s.Resolve(themeID); err == nil {
-				ch <- res
+			res, err := s.Resolve(themeID)
+			if err != nil {
+				slog.Debug("skipping unresolvable theme", "theme", themeID, "err", err)
+				return
 			}
+			ch <- res
 		})
 	}
 	wg.Wait()
