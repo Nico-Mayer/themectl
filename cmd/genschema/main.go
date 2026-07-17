@@ -1,0 +1,97 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+
+	"github.com/invopop/jsonschema"
+	"github.com/nico-mayer/themectl-cli/internal/config"
+	"github.com/nico-mayer/themectl-cli/internal/integration"
+	"github.com/nico-mayer/themectl-cli/internal/theme"
+)
+
+const idBase = "https://raw.githubusercontent.com/Nico-Mayer/themectl-cli/main/schemas/"
+
+type target struct {
+	file        string
+	title       string
+	description string
+	value       any
+	post        func(*jsonschema.Schema)
+}
+
+func main() {
+	if err := run(); err != nil {
+		fmt.Fprintln(os.Stderr, "genschema:", err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
+	r := &jsonschema.Reflector{
+		FieldNameTag:   "toml",
+		DoNotReference: true, // inline nested types instead of $defs/$ref
+	}
+
+	targets := []target{
+		{
+			file:        "family.schema.json",
+			title:       "themectl family.toml",
+			description: "Family-wide defaults inherited by every variant of the theme family.",
+			value:       &theme.FamilyFile{},
+		},
+		{
+			file:        "variant.schema.json",
+			title:       "themectl variant.toml",
+			description: "A single theme variant. Values not set here are inherited from the family's [defaults].",
+			value:       &theme.VariantFile{},
+		},
+		{
+			file:        "settings.schema.json",
+			title:       "themectl.toml",
+			description: "themectl settings. Values set here override the built-in defaults.",
+			value:       &config.Settings{},
+			post:        injectIntegrationNames,
+		},
+	}
+
+	for _, t := range targets {
+		s := r.Reflect(t.value)
+		s.ID = jsonschema.ID(idBase + t.file)
+		s.Title = t.title
+		s.Description = t.description
+		if t.post != nil {
+			t.post(s)
+		}
+
+		data, err := json.MarshalIndent(s, "", "  ")
+		if err != nil {
+			return err
+		}
+		data = append(data, '\n')
+
+		path := filepath.Join("schemas", t.file)
+		if err := os.WriteFile(path, data, 0o644); err != nil {
+			return err
+		}
+		fmt.Println("wrote", path)
+	}
+
+	return nil
+}
+
+func injectIntegrationNames(s *jsonschema.Schema) {
+	names := integration.Names()
+	enum := make([]any, len(names))
+	for i, n := range names {
+		enum[i] = n
+	}
+
+	prop, ok := s.Properties.Get("integrations")
+	if !ok {
+		panic("settings schema: integrations property missing")
+	}
+	prop.Items.Enum = enum
+}

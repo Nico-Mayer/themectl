@@ -14,5 +14,12 @@ echo Running tests...
 gotestsum ./...
 """
 
+[tasks."gen:schema"]
+description = "Generate JSON schema from go stucts"
+run = """
+echo gen schemas...
+go generate
+"""
+
 [tools]
 "go:gotest.tools/gotestsum" = "latest"
