@@ -151,10 +151,10 @@ func TestStore_Assets(t *testing.T) {
 func TestStore_PickRandom(t *testing.T) {
 	s := NewStore(testFS())
 
-	t.Run("dark picks the only dark theme", func(t *testing.T) {
+	t.Run("dark picks a dark theme", func(t *testing.T) {
 		got, err := s.PickRandom(Dark)
 		testutil.NoErr(t, err)
-		testutil.Equal(t, got.ID(), "catppuccin/mocha")
+		testutil.Equal(t, got.Appearance, Dark)
 	})
 
 	t.Run("light picks the only light theme", func(t *testing.T) {
