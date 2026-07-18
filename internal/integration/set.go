@@ -68,3 +68,13 @@ func Enabled(cfg config.Config) []Integration {
 
 	return out
 }
+
+func Unknown(cfg config.Config) []string {
+	var out []string
+	for _, name := range cfg.Settings.Integrations {
+		if _, ok := available[name]; !ok {
+			out = append(out, name)
+		}
+	}
+	return out
+}
