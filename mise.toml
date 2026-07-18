@@ -1,6 +1,7 @@
 [tools]
 "go:gotest.tools/gotestsum" = "latest"
 goreleaser = "latest"
+svu = "latest"
 
 [tasks.build]
 description = "Compile the themectl binary"
@@ -38,21 +39,19 @@ description = "Build a local snapshot release with goreleaser"
 run = "goreleaser release --snapshot --clean"
 
 [tasks.release]
-description = "Bump version (major|minor|patch), tag, and push to trigger the release workflow"
-usage = 'arg "[bump]" default="patch" help="major|minor|patch"'
+description = "Tag the next version (derived from conventional commits) and push to trigger the release workflow"
+usage = 'arg "[bump]" default="next" help="next|major|minor|patch"'
 run = """
 set -e
-last=$(git tag -l 'v[01].*' --sort=-v:refname | head -n1)
-v=${last#v}; v=${v:-0.0.0}
-maj=${v%%.*}; rest=${v#*.}; min=${rest%%.*}; pat=${rest#*.}
-case "$usage_bump" in
-  major) tag="v$((maj+1)).0.0" ;;
-  minor) tag="v$maj.$((min+1)).0" ;;
-  patch) tag="v$maj.$min.$((pat+1))" ;;
-  *) echo "usage: mise run release [major|minor|patch]" >&2; exit 1 ;;
-esac
-git tag -m "$tag" "$tag"
-git push origin "$tag"
+current=$(svu current)
+next=$(svu "$usage_bump")
+if [ "$next" = "$current" ]; then
+  echo "nothing to release since $current" >&2
+  exit 1
+fi
+echo "releasing $current -> $next"
+git tag -m "$next" "$next"
+git push origin "$next"
 """
 
 [tasks."schema:gen"]
