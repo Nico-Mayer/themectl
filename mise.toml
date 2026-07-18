@@ -38,15 +38,20 @@ description = "Build a local snapshot release with goreleaser"
 run = "goreleaser release --snapshot --clean"
 
 [tasks.release]
-description = "Tag today's date-based release (vYYYY.M.D) and push to trigger the release workflow"
+description = "Bump version (major|minor|patch), tag, and push to trigger the release workflow"
+usage = 'arg "[bump]" default="patch" help="major|minor|patch"'
 run = """
 set -e
-tag="v$(date -u +%Y.%m.%d | sed 's/\\.0/./g')"
-if git rev-parse "$tag" >/dev/null 2>&1; then
-  echo "tag $tag already exists" >&2
-  exit 1
-fi
-git tag "$tag"
+last=$(git tag -l 'v*' --sort=-v:refname | head -n1)
+v=${last#v}; v=${v:-0.0.0}
+maj=${v%%.*}; rest=${v#*.}; min=${rest%%.*}; pat=${rest#*.}
+case "$usage_bump" in
+  major) tag="v$((maj+1)).0.0" ;;
+  minor) tag="v$maj.$((min+1)).0" ;;
+  patch) tag="v$maj.$min.$((pat+1))" ;;
+  *) echo "usage: mise run release [major|minor|patch]" >&2; exit 1 ;;
+esac
+git tag -m "$tag" "$tag"
 git push origin "$tag"
 """
 
