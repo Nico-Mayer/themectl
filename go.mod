@@ -1,4 +1,4 @@
-module github.com/nico-mayer/themectl-cli
+module github.com/Nico-Mayer/themectl-cli
 
 go 1.26.5
 

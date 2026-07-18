@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/Nico-Mayer/themectl-cli/internal/config"
+	"github.com/Nico-Mayer/themectl-cli/internal/integration"
+	"github.com/Nico-Mayer/themectl-cli/internal/theme"
 	"github.com/invopop/jsonschema"
-	"github.com/nico-mayer/themectl-cli/internal/config"
-	"github.com/nico-mayer/themectl-cli/internal/integration"
-	"github.com/nico-mayer/themectl-cli/internal/theme"
 )
 
 const idBase = "https://raw.githubusercontent.com/Nico-Mayer/themectl-cli/main/schemas/"

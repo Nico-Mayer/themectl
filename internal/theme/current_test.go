@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/nico-mayer/themectl-cli/internal/testutil"
+	"github.com/Nico-Mayer/themectl-cli/internal/testutil"
 )
 
 func TestCurrent_roundTrip(t *testing.T) {

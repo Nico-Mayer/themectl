@@ -3,7 +3,7 @@ package theme
 import (
 	"testing"
 
-	"github.com/nico-mayer/themectl-cli/internal/testutil"
+	"github.com/Nico-Mayer/themectl-cli/internal/testutil"
 )
 
 func TestParseAppearance(t *testing.T) {

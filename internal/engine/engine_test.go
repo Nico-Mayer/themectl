@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/nico-mayer/themectl-cli/internal/integration"
-	"github.com/nico-mayer/themectl-cli/internal/theme"
+	"github.com/Nico-Mayer/themectl-cli/internal/integration"
+	"github.com/Nico-Mayer/themectl-cli/internal/theme"
 )
 
 type fakeIntegration struct {

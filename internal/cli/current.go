@@ -9,11 +9,11 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/Nico-Mayer/themectl-cli/internal/config"
+	"github.com/Nico-Mayer/themectl-cli/internal/theme"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
 	"github.com/mattn/go-isatty"
-	"github.com/nico-mayer/themectl-cli/internal/config"
-	"github.com/nico-mayer/themectl-cli/internal/theme"
 	"github.com/urfave/cli/v3"
 )
 

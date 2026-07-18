@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/nico-mayer/themectl-cli/internal/testutil"
+	"github.com/Nico-Mayer/themectl-cli/internal/testutil"
 )
 
 func TestSymlink_createsLink(t *testing.T) {

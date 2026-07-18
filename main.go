@@ -5,12 +5,12 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/Nico-Mayer/themectl-cli/internal/cli"
+	"github.com/Nico-Mayer/themectl-cli/internal/config"
+	"github.com/Nico-Mayer/themectl-cli/internal/engine"
+	"github.com/Nico-Mayer/themectl-cli/internal/integration"
+	"github.com/Nico-Mayer/themectl-cli/internal/theme"
 	"github.com/charmbracelet/log"
-	"github.com/nico-mayer/themectl-cli/internal/cli"
-	"github.com/nico-mayer/themectl-cli/internal/config"
-	"github.com/nico-mayer/themectl-cli/internal/engine"
-	"github.com/nico-mayer/themectl-cli/internal/integration"
-	"github.com/nico-mayer/themectl-cli/internal/theme"
 )
 
 // version is set at build time by goreleaser via ldflags.

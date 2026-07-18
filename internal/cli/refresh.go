@@ -3,9 +3,9 @@ package cli
 import (
 	"context"
 
-	"github.com/nico-mayer/themectl-cli/internal/config"
-	"github.com/nico-mayer/themectl-cli/internal/engine"
-	"github.com/nico-mayer/themectl-cli/internal/theme"
+	"github.com/Nico-Mayer/themectl-cli/internal/config"
+	"github.com/Nico-Mayer/themectl-cli/internal/engine"
+	"github.com/Nico-Mayer/themectl-cli/internal/theme"
 	"github.com/urfave/cli/v3"
 )
 

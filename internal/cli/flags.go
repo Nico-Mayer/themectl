@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"github.com/nico-mayer/themectl-cli/internal/theme"
+	"github.com/Nico-Mayer/themectl-cli/internal/theme"
 	"github.com/urfave/cli/v3"
 )
 

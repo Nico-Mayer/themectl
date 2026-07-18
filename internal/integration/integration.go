@@ -1,6 +1,6 @@
 package integration
 
-import "github.com/nico-mayer/themectl-cli/internal/theme"
+import "github.com/Nico-Mayer/themectl-cli/internal/theme"
 
 type Integration interface {
 	Name() string

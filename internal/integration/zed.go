@@ -8,7 +8,7 @@ import (
 	"regexp"
 
 	"github.com/BurntSushi/toml"
-	"github.com/nico-mayer/themectl-cli/internal/theme"
+	"github.com/Nico-Mayer/themectl-cli/internal/theme"
 )
 
 type Zed struct {

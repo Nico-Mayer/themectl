@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/nico-mayer/themectl-cli/internal/testutil"
-	"github.com/nico-mayer/themectl-cli/internal/theme"
+	"github.com/Nico-Mayer/themectl-cli/internal/testutil"
+	"github.com/Nico-Mayer/themectl-cli/internal/theme"
 )
 
 type fakeInstaller struct {

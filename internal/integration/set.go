@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"slices"
 
-	"github.com/nico-mayer/themectl-cli/internal/config"
+	"github.com/Nico-Mayer/themectl-cli/internal/config"
 )
 
 var available = map[string]func(cfg config.Config) Integration{

@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"regexp"
 
-	"github.com/nico-mayer/themectl-cli/internal/theme"
+	"github.com/Nico-Mayer/themectl-cli/internal/theme"
 )
 
 type Ghostty struct {
