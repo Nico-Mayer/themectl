@@ -25,13 +25,13 @@ func (Helix) Name() string {
 	return "helix"
 }
 
-func (i Helix) Apply(t theme.Resolved) error {
-	name, ok := t.Themes[i.Name()]
+func (h Helix) Apply(t theme.Resolved) error {
+	name, ok := t.Themes[h.Name()]
 	if !ok {
 		return fmt.Errorf("theme %s has no helix overwride", t.ID())
 	}
 
-	data, err := os.ReadFile(i.ConfigPath)
+	data, err := os.ReadFile(h.ConfigPath)
 	if err != nil {
 		return fmt.Errorf("read helix config: %w", err)
 	}
@@ -41,9 +41,13 @@ func (i Helix) Apply(t theme.Resolved) error {
 		return err
 	}
 
-	if err := os.WriteFile(i.ConfigPath, []byte(updated), 0o644); err != nil {
+	if err := os.WriteFile(h.ConfigPath, []byte(updated), 0o644); err != nil {
 		return fmt.Errorf("write helix config: %w", err)
 	}
 
 	return nil
+}
+
+func (h Helix) Check() error {
+	return checkConfigDir(h.Name(), h.ConfigPath)
 }

@@ -12,10 +12,10 @@ import (
 
 var available = map[string]func(cfg config.Config) Integration{
 	"ghostty": func(cfg config.Config) Integration {
-		return Ghostty{ConfigPath: filepath.Join(cfg.Settings.ConfigDirFor("ghostty"), "config.ghostty")}
+		return Ghostty{ConfigPath: configFilePath(cfg, "ghostty", "config.ghostty")}
 	},
 	"helix": func(cfg config.Config) Integration {
-		return Helix{ConfigPath: filepath.Join(cfg.Settings.ConfigDirFor("helix"), "config.toml")}
+		return Helix{ConfigPath: configFilePath(cfg, "helix", "config.toml")}
 	},
 	"nvim": func(cfg config.Config) Integration {
 		return Nvim{Cfg: cfg}
@@ -37,7 +37,7 @@ var available = map[string]func(cfg config.Config) Integration{
 	},
 	"zed": func(cfg config.Config) Integration {
 		z := Zed{
-			SettingsPath: filepath.Join(cfg.Settings.ConfigDirFor("zed"), "settings.json"),
+			SettingsPath: configFilePath(cfg, "zed", "settings.json"),
 			CurrentDir:   cfg.CurrentDir(),
 		}
 
@@ -51,6 +51,14 @@ var available = map[string]func(cfg config.Config) Integration{
 		}
 		return z
 	},
+}
+
+func configFilePath(cfg config.Config, name, file string) string {
+	dir := cfg.Settings.ConfigDirFor(name)
+	if dir == "" {
+		return ""
+	}
+	return filepath.Join(dir, file)
 }
 
 func Names() []string {

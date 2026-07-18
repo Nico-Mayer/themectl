@@ -62,6 +62,10 @@ func (i Zed) Apply(t theme.Resolved) error {
 	return nil
 }
 
+func (z Zed) Check() error {
+	return checkConfigDir(z.Name(), z.SettingsPath)
+}
+
 func (i Zed) ensureExtension() error {
 	if i.Installer == nil {
 		return nil

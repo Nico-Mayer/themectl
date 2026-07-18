@@ -33,7 +33,6 @@ appearance = "dark"
 
 ### Features
 
-- `doctor` / `status` command: report current theme, settings, and which integrations are applied/available
 - Expose a color palette per theme so the raycast extension can display it in the theme picker
 - `create` command: TUI form that scaffolds a new theme folder in themesDir()
 - `install` command: install themes from a GitHub URL

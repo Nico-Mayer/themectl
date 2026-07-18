@@ -55,6 +55,10 @@ func (g Ghostty) Apply(t theme.Resolved) error {
 	return nil
 }
 
+func (g Ghostty) Check() error {
+	return checkConfigDir(g.Name(), g.ConfigPath)
+}
+
 func reloadGhostty() error {
 	err := exec.Command("pkill", "-USR2", "ghostty").Run()
 	if err == nil {

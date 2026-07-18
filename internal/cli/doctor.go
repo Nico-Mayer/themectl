@@ -16,18 +16,24 @@ import (
 )
 
 type doctorReport struct {
-	ConfigFile        string            `json:"config_file"`
-	ConfigFileExists  bool              `json:"config_file_exists"`
-	CurrentTheme      string            `json:"current_theme"`
-	CurrentThemeFound bool              `json:"current_theme_found"`
-	Root              string            `json:"root"`
-	DefaultTheme      string            `json:"default_theme"`
-	DefaultThemeFound bool              `json:"default_theme_found"`
-	InstalledThemes   int               `json:"installed_themes"`
-	Enabled           []string          `json:"enabled_integrations"`
-	Available         []string          `json:"available_integrations"`
-	Unknown           []string          `json:"unknown_integrations"`
-	IntegrationIssues map[string]string `json:"integration_issues,omitempty"`
+	ConfigFile        string              `json:"config_file"`
+	ConfigFileExists  bool                `json:"config_file_exists"`
+	Root              string              `json:"root"`
+	CurrentTheme      string              `json:"current_theme"`
+	CurrentThemeFound bool                `json:"current_theme_found"`
+	DefaultTheme      string              `json:"default_theme"`
+	DefaultThemeFound bool                `json:"default_theme_found"`
+	InstalledThemes   int                 `json:"installed_themes"`
+	Integrations      []integrationStatus `json:"integrations"`
+	Unknown           []string            `json:"unknown_integrations,omitempty"`
+}
+
+type integrationStatus struct {
+	Name    string `json:"name"`
+	Enabled bool   `json:"enabled"`
+	Healthy bool   `json:"healthy"`
+	Detail  string `json:"detail,omitempty"`
+	Checked bool   `json:"checked"`
 }
 
 func doctorCmd(cfg config.Config, store *theme.Store) *cli.Command {
@@ -53,8 +59,7 @@ func buildDoctorReport(cfg config.Config, store *theme.Store) doctorReport {
 		ConfigFile:   cfg.SettingsFile(),
 		Root:         cfg.Root,
 		DefaultTheme: cfg.Settings.DefaultTheme,
-		Enabled:      cfg.Settings.Integrations,
-		Available:    integration.Names(),
+		Integrations: integrationStatuses(cfg),
 		Unknown:      integration.Unknown(cfg),
 	}
 
@@ -75,20 +80,32 @@ func buildDoctorReport(cfg config.Config, store *theme.Store) doctorReport {
 	r.CurrentThemeFound = themeFound(store, r.CurrentTheme)
 	r.DefaultThemeFound = themeFound(store, r.DefaultTheme)
 
-	for _, name := range r.Enabled {
-		dir := cfg.Settings.ConfigDirFor(name)
-		if dir == "" {
-			continue
-		}
-		if _, err := os.Stat(dir); err != nil {
-			if r.IntegrationIssues == nil {
-				r.IntegrationIssues = make(map[string]string)
-			}
-			r.IntegrationIssues[name] = "config dir missing: " + dir
-		}
+	return r
+}
+
+func integrationStatuses(cfg config.Config) []integrationStatus {
+	enabled := make(map[string]integration.Integration)
+	for _, i := range integration.Enabled(cfg) {
+		enabled[i.Name()] = i
 	}
 
-	return r
+	names := integration.Names()
+	statuses := make([]integrationStatus, 0, len(names))
+	for _, name := range names {
+		s := integrationStatus{Name: name, Healthy: true}
+		if i, ok := enabled[name]; ok {
+			s.Enabled = true
+			if hc, ok := i.(integration.HealthChecker); ok {
+				s.Checked = true
+				if err := hc.Check(); err != nil {
+					s.Healthy = false
+					s.Detail = err.Error()
+				}
+			}
+		}
+		statuses = append(statuses, s)
+	}
+	return statuses
 }
 
 func themeFound(store *theme.Store, id string) bool {
@@ -181,32 +198,27 @@ func themeRows(r doctorReport) []kvRow {
 }
 
 func renderIntegrations(r doctorReport) string {
-	if len(r.Available) == 0 && len(r.Unknown) == 0 {
+	if len(r.Integrations) == 0 && len(r.Unknown) == 0 {
 		return doctorFaintStyle.Render("  (none)")
 	}
 
-	enabled := make(map[string]bool, len(r.Enabled))
-	for _, name := range r.Enabled {
-		enabled[name] = true
-	}
-
 	width := 0
-	for _, name := range r.Available {
-		width = max(width, len(name))
+	for _, s := range r.Integrations {
+		width = max(width, len(s.Name))
 	}
 	for _, name := range r.Unknown {
 		width = max(width, len(name))
 	}
 
-	lines := make([]string, 0, len(r.Available)+len(r.Unknown))
-	for _, name := range r.Available {
+	lines := make([]string, 0, len(r.Integrations)+len(r.Unknown))
+	for _, s := range r.Integrations {
 		switch {
-		case enabled[name] && r.IntegrationIssues[name] != "":
-			lines = append(lines, integrationLine(doctorWarnStyle, "!", name, r.IntegrationIssues[name], width))
-		case enabled[name]:
-			lines = append(lines, integrationLine(doctorOKStyle, "●", name, "enabled", width))
+		case !s.Enabled:
+			lines = append(lines, integrationLine(doctorFaintStyle, "○", s.Name, "available", width))
+		case !s.Healthy:
+			lines = append(lines, integrationLine(doctorWarnStyle, "!", s.Name, s.Detail, width))
 		default:
-			lines = append(lines, integrationLine(doctorFaintStyle, "○", name, "available", width))
+			lines = append(lines, integrationLine(doctorOKStyle, "●", s.Name, "enabled", width))
 		}
 	}
 	for _, name := range r.Unknown {
