@@ -2,23 +2,9 @@ package theme
 
 import (
 	"fmt"
-	"maps"
+	"reflect"
 	"slices"
 )
-
-type Spec struct {
-	Appearance *Appearance       `toml:"appearance,omitempty" jsonschema:"description=Appearance of this variant. Falls back to the family default; resolving fails if neither sets it."`
-	Themes     map[string]string `toml:"themes,omitempty" jsonschema:"description=Per-integration theme names keyed by integration. Overrides the family defaults."`
-}
-
-type FamilyFile struct {
-	Defaults Spec `toml:"defaults,omitempty" jsonschema:"description=Defaults inherited by every variant; a variant may override any of them."`
-}
-
-type VariantFile struct {
-	Spec
-	WallpaperSources []string `toml:"wallpaper_sources,omitempty" jsonschema:"description=Extra wallpaper sources: theme ids (family/variant) or shared wallpaper dir names. The variant's own wallpaper dir is always included.,uniqueItems=ture"`
-}
 
 type Family struct {
 	Name     string
@@ -26,9 +12,8 @@ type Family struct {
 }
 
 type Variant struct {
-	Name             string
-	Spec             Spec
-	WallpaperSources []string
+	Name string
+	VariantSpec
 }
 
 type Resolved struct {
@@ -36,11 +21,27 @@ type Resolved struct {
 	Variant          string
 	Appearance       Appearance
 	WallpaperSources []string
-	Themes           map[string]string
+	Ghostty          *GhosttySpec
+	Helix            *HelixSpec
+	Zed              *ZedSpec
 }
 
 func (r *Resolved) ID() string {
 	return fmt.Sprintf("%s/%s", r.Family, r.Variant)
+}
+
+func (r *Resolved) Themes() map[string]string {
+	out := make(map[string]string)
+	if r.Ghostty != nil && r.Ghostty.Theme != "" {
+		out["ghostty"] = r.Ghostty.Theme
+	}
+	if r.Helix != nil && r.Helix.Theme != "" {
+		out["helix"] = r.Helix.Theme
+	}
+	if r.Zed != nil && r.Zed.Theme != "" {
+		out["zed"] = r.Zed.Theme
+	}
+	return out
 }
 
 func Resolve(fam Family, variant Variant) (Resolved, error) {
@@ -55,25 +56,47 @@ func Resolve(fam Family, variant Variant) (Resolved, error) {
 		Variant:          variant.Name,
 		Appearance:       *spec.Appearance,
 		WallpaperSources: append(slices.Clone(variant.WallpaperSources), id),
-		Themes:           spec.Themes,
+		Ghostty:          spec.Ghostty,
+		Helix:            spec.Helix,
+		Zed:              spec.Zed,
 	}, nil
 }
 
 func merge(base, over Spec) Spec {
-	out := Spec{
-		Appearance: base.Appearance,
-		Themes:     maps.Clone(base.Themes),
+	out := over
+	if out.Appearance == nil {
+		out.Appearance = base.Appearance
 	}
-
-	if over.Appearance != nil {
-		out.Appearance = over.Appearance
-	}
-	if over.Themes != nil {
-		if out.Themes == nil {
-			out.Themes = make(map[string]string, len(over.Themes))
+	ov := reflect.ValueOf(&out).Elem()
+	bv := reflect.ValueOf(base)
+	for i := range ov.NumField() {
+		f := ov.Field(i)
+		if f.Kind() != reflect.Pointer || f.Type().Elem().Kind() != reflect.Struct {
+			continue // only the *XxxSpec section fields
 		}
-		maps.Copy(out.Themes, over.Themes) // per-key override
+		b := bv.Field(i)
+		switch {
+		case b.IsNil():
+			// no default section: keep the variant's as-is
+		case f.IsNil():
+			f.Set(b) // no variant section: inherit the default wholesale
+		default:
+			f.Set(mergeSection(b, f))
+		}
 	}
+	return out
+}
 
+// mergeSection returns a fresh *T where zero fields of over are filled in
+// from base. Inputs are never mutated.
+func mergeSection(base, over reflect.Value) reflect.Value {
+	out := reflect.New(over.Type().Elem())
+	out.Elem().Set(over.Elem())
+	for i := range out.Elem().NumField() {
+		f := out.Elem().Field(i)
+		if f.IsZero() {
+			f.Set(base.Elem().Field(i))
+		}
+	}
 	return out
 }

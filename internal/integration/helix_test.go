@@ -47,7 +47,7 @@ func TestHelix_Apply(t *testing.T) {
 	res := theme.Resolved{
 		Family:  "catppuccin",
 		Variant: "mocha",
-		Themes:  map[string]string{"helix": "catppuccin_mocha"},
+		Helix:   &theme.HelixSpec{Theme: "catppuccin_mocha"},
 	}
 
 	testutil.NoErr(t, h.Apply(res))
@@ -60,7 +60,7 @@ func TestHelix_Apply(t *testing.T) {
 
 func TestHelix_Apply_noOverrideFails(t *testing.T) {
 	h := Helix{ConfigPath: "unused"}
-	if err := h.Apply(theme.Resolved{Themes: map[string]string{}}); err == nil {
+	if err := h.Apply(theme.Resolved{}); err == nil {
 		t.Error("expected error when theme has no helix override")
 	}
 }

@@ -68,13 +68,14 @@ func renderThemeDetails(r theme.Resolved) string {
 		{"Wallpapers", strings.Join(r.WallpaperSources, "\n")},
 	}
 
+	themes := r.Themes()
 	themesRow := -1
-	if len(r.Themes) > 0 {
+	if len(themes) > 0 {
 		rows = append(rows, []string{})
 		themesRow = len(rows)
 		rows = append(rows, []string{"Themes:", ""})
-		for _, k := range slices.Sorted(maps.Keys(r.Themes)) {
-			rows = append(rows, []string{k, r.Themes[k]})
+		for _, k := range slices.Sorted(maps.Keys(themes)) {
+			rows = append(rows, []string{k, themes[k]})
 		}
 	}
 

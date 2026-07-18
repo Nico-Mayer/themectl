@@ -26,10 +26,10 @@ func (Helix) Name() string {
 }
 
 func (h Helix) Apply(t theme.Resolved) error {
-	name, ok := t.Themes[h.Name()]
-	if !ok {
-		return fmt.Errorf("theme %s has no helix overwride", t.ID())
+	if t.Helix == nil || t.Helix.Theme == "" {
+		return fmt.Errorf("theme %s has no helix override", t.ID())
 	}
+	name := t.Helix.Theme
 
 	data, err := os.ReadFile(h.ConfigPath)
 	if err != nil {

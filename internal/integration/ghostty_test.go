@@ -42,7 +42,7 @@ func TestGhostty_Apply(t *testing.T) {
 	res := theme.Resolved{
 		Family:  "catppuccin",
 		Variant: "mocha",
-		Themes:  map[string]string{"ghostty": "catppuccin-mocha"},
+		Ghostty: &theme.GhosttySpec{Theme: "catppuccin-mocha"},
 	}
 
 	testutil.NoErr(t, g.Apply(res))

@@ -11,10 +11,9 @@ import (
 
 func TestStore_Materialize(t *testing.T) {
 	fsys := fstest.MapFS{
-		"catppuccin/family.toml":        {Data: []byte("[defaults]\nappearance='dark'\n")},
-		"catppuccin/zed.json":           {Data: []byte(`{"from":"family"}`)},
-		"catppuccin/mocha/variant.toml": {Data: []byte("appearance='dark'\n")},
-		"catppuccin/mocha/nvim.lua":     {Data: []byte("-- mocha")},
+		"catppuccin/theme.toml":     {Data: []byte("[defaults]\nappearance='dark'\n")},
+		"catppuccin/zed.json":       {Data: []byte(`{"from":"family"}`)},
+		"catppuccin/mocha/nvim.lua": {Data: []byte("-- mocha")},
 	}
 	dest := filepath.Join(t.TempDir(), "current")
 	testutil.NoErr(t, os.MkdirAll(dest, 0o755))

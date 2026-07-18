@@ -29,10 +29,10 @@ func (Ghostty) Name() string {
 }
 
 func (g Ghostty) Apply(t theme.Resolved) error {
-	name, ok := t.Themes[g.Name()]
-	if !ok {
-		return fmt.Errorf("theme %s has no ghostty overwride", t.ID())
+	if t.Ghostty == nil || t.Ghostty.Theme == "" {
+		return fmt.Errorf("theme %s has no ghostty override", t.ID())
 	}
+	name := t.Ghostty.Theme
 
 	data, err := os.ReadFile(g.ConfigPath)
 	if err != nil {

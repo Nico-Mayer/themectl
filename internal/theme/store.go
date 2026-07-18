@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"io/fs"
 	"log/slog"
+	"maps"
 	"math/rand/v2"
 	"path"
 	"slices"
-	"sort"
 	"strings"
 	"sync"
 
@@ -16,8 +16,7 @@ import (
 )
 
 var reservedNames = []string{
-	"family.toml",
-	"variant.toml",
+	"theme.toml",
 }
 
 type Store struct {
@@ -36,17 +35,20 @@ func (s *Store) Resolve(id string) (Resolved, error) {
 		return Resolved{}, fmt.Errorf("theme id %q: want \"family/variant\"", id)
 	}
 
-	family, err := s.family(famName)
+	tf, err := s.themeFile(famName)
 	if err != nil {
 		return Resolved{}, err
 	}
 
-	variant, err := s.variant(famName, variantName)
-	if err != nil {
-		return Resolved{}, err
+	vs, ok := tf.Variants[variantName]
+	if !ok {
+		return Resolved{}, fmt.Errorf("theme %s: variant %q not declared in theme.toml", id, variantName)
 	}
 
-	return Resolve(family, variant)
+	return Resolve(
+		Family{Name: famName, Defaults: tf.Defaults},
+		Variant{Name: variantName, VariantSpec: vs},
+	)
 }
 
 func (s *Store) IDs() ([]string, error) {
@@ -98,19 +100,12 @@ func (s *Store) PickRandom(a Appearance) (Resolved, error) {
 }
 
 func (s *Store) listVariants(family string) ([]string, error) {
-	entries, err := fs.ReadDir(s.fsys, family)
+	tf, err := s.themeFile(family)
 	if err != nil {
-		return []string{}, fmt.Errorf("read family %q: %w", family, err)
+		return nil, err
 	}
 
-	var out []string
-	for _, e := range entries {
-		if e.IsDir() && !(e.Name() == "wallpaper") {
-			out = append(out, e.Name())
-		}
-	}
-	sort.Strings(out)
-	return out, nil
+	return slices.Sorted(maps.Keys(tf.Variants)), nil
 }
 
 func (s *Store) resolveAll() ([]Resolved, error) {
@@ -142,26 +137,17 @@ func (s *Store) resolveAll() ([]Resolved, error) {
 }
 
 func (s *Store) resolveFamily(name string) []Resolved {
-	fam, err := s.family(name)
+	tf, err := s.themeFile(name)
 	if err != nil {
 		slog.Debug("skipping unresolvable family", "family", name, "err", err)
 		return nil
 	}
 
-	variants, err := s.listVariants(name)
-	if err != nil {
-		slog.Debug("skipping unreadable family", "family", name, "err", err)
-		return nil
-	}
-
+	fam := Family{Name: name, Defaults: tf.Defaults}
 	var out []Resolved
-	for _, v := range variants {
-		variant, err := s.variant(name, v)
-		if err != nil {
-			slog.Debug("skipping unresolvable theme", "theme", name+"/"+v, "err", err)
-			continue
-		}
-		res, err := Resolve(fam, variant)
+
+	for _, v := range slices.Sorted(maps.Keys(tf.Variants)) {
+		res, err := Resolve(fam, Variant{Name: v, VariantSpec: tf.Variants[v]})
 		if err != nil {
 			slog.Debug("skipping unresolvable theme", "theme", name+"/"+v, "err", err)
 			continue
@@ -188,34 +174,12 @@ func (s *Store) allFamilies() ([]string, error) {
 	return out, nil
 }
 
-func (s *Store) family(name string) (Family, error) {
-	var wrap FamilyFile
-
-	err := s.decode(path.Join(name, "family.toml"), &wrap)
-	if err != nil {
-		return Family{}, err
+func (s *Store) themeFile(family string) (ThemeFile, error) {
+	var tf ThemeFile
+	if err := s.decode(path.Join(family, "theme.toml"), &tf); err != nil {
+		return ThemeFile{}, err
 	}
-
-	fam := Family{
-		Name:     name,
-		Defaults: wrap.Defaults,
-	}
-	return fam, nil
-}
-
-func (s *Store) variant(family, name string) (Variant, error) {
-	var v VariantFile
-
-	err := s.decode(path.Join(family, name, "variant.toml"), &v)
-	if err != nil {
-		return Variant{}, err
-	}
-
-	return Variant{
-		Name:             name,
-		WallpaperSources: v.WallpaperSources,
-		Spec:             v.Spec,
-	}, nil
+	return tf, nil
 }
 
 func (s *Store) decode(path string, v any) error {

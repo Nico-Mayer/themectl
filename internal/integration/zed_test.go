@@ -64,7 +64,7 @@ func TestZed_Apply(t *testing.T) {
 	res := theme.Resolved{
 		Family:  "catppuccin",
 		Variant: "mocha",
-		Themes:  map[string]string{"zed": "Catppuccin Mocha"},
+		Zed:     &theme.ZedSpec{Theme: "Catppuccin Mocha"},
 	}
 
 	testutil.NoErr(t, z.Apply(res))
@@ -87,6 +87,6 @@ func TestZed_Apply_noSidecarSkipsInstaller(t *testing.T) {
 	installer := &fakeInstaller{}
 	z := Zed{SettingsPath: settings, CurrentDir: current, Installer: installer}
 
-	testutil.NoErr(t, z.Apply(theme.Resolved{Themes: map[string]string{"zed": "X"}}))
+	testutil.NoErr(t, z.Apply(theme.Resolved{Zed: &theme.ZedSpec{Theme: "X"}}))
 	testutil.Equal(t, installer.ncall, 0)
 }

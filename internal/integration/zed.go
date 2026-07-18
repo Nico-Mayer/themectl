@@ -35,17 +35,17 @@ func (Zed) Name() string {
 	return "zed"
 }
 
-func (i Zed) Apply(t theme.Resolved) error {
-	themeName, ok := t.Themes[i.Name()]
-	if !ok {
+func (z Zed) Apply(t theme.Resolved) error {
+	if t.Zed == nil || t.Zed.Theme == "" {
 		return fmt.Errorf("theme %s has no zed override", t.ID())
 	}
+	themeName := t.Zed.Theme
 
-	if err := i.ensureExtension(); err != nil {
+	if err := z.ensureExtension(); err != nil {
 		return err
 	}
 
-	data, err := os.ReadFile(i.SettingsPath)
+	data, err := os.ReadFile(z.SettingsPath)
 	if err != nil {
 		return fmt.Errorf("read zed settings: %w", err)
 	}
@@ -55,7 +55,7 @@ func (i Zed) Apply(t theme.Resolved) error {
 		return err
 	}
 
-	if err := os.WriteFile(i.SettingsPath, []byte(updated), 0o644); err != nil {
+	if err := os.WriteFile(z.SettingsPath, []byte(updated), 0o644); err != nil {
 		return fmt.Errorf("write zed settings: %w", err)
 	}
 
@@ -66,12 +66,12 @@ func (z Zed) Check() error {
 	return checkConfigDir(z.Name(), z.SettingsPath)
 }
 
-func (i Zed) ensureExtension() error {
-	if i.Installer == nil {
+func (z Zed) ensureExtension() error {
+	if z.Installer == nil {
 		return nil
 	}
 
-	data, err := os.ReadFile(filepath.Join(i.CurrentDir, "zed.toml"))
+	data, err := os.ReadFile(filepath.Join(z.CurrentDir, "zed.toml"))
 	if errors.Is(err, os.ErrNotExist) {
 		return nil
 	}
@@ -86,7 +86,7 @@ func (i Zed) ensureExtension() error {
 		return nil
 	}
 
-	return i.Installer.Ensure(ExtensionRef{URL: sidecar.ExtensionURL})
+	return z.Installer.Ensure(ExtensionRef{URL: sidecar.ExtensionURL})
 }
 
 func setZedTheme(config string, themeName string) (string, error) {

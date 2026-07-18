@@ -1,6 +1,7 @@
 package theme
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"maps"
@@ -54,7 +55,7 @@ func (s *Store) Assets(family, variant string) (map[string]string, error) {
 	}
 
 	variantAssets, err := s.assetsIn(path.Join(family, variant))
-	if err != nil {
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
 		return nil, err
 	}
 
