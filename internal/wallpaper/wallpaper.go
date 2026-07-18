@@ -13,19 +13,19 @@ import (
 )
 
 const (
-	wallSufix = "wallpaper"
+	suffix = "wallpaper"
 )
 
 var allowedFileTypes = []string{".jpeg", ".jpg", ".png", ".heic"}
 
 type Manager struct {
-	ThemsDir            string
+	ThemesDir           string
 	SharedWallpapersDir string
 }
 
 func NewManager(themesDir, sharedWallpapersDir string) Manager {
 	return Manager{
-		ThemsDir:            themesDir,
+		ThemesDir:           themesDir,
 		SharedWallpapersDir: sharedWallpapersDir,
 	}
 }
@@ -66,8 +66,8 @@ func (m Manager) Set(p string) error {
 
 func (m Manager) ListCandidates(t theme.Resolved) []string {
 	sources := m.collectSourceDirs(t)
-	candidatest := collectCandidates(sources)
-	return candidatest
+	candidates := collectCandidates(sources)
+	return candidates
 }
 
 func (m Manager) collectSourceDirs(theme theme.Resolved) []string {
@@ -79,7 +79,7 @@ func (m Manager) collectSourceDirs(theme theme.Resolved) []string {
 			sources = append(sources, sourcesPath)
 		}
 
-		themesPath := filepath.Join(m.ThemsDir, s, wallSufix)
+		themesPath := filepath.Join(m.ThemesDir, s, suffix)
 		if exists(themesPath) {
 			sources = append(sources, themesPath)
 		}

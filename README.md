@@ -33,13 +33,13 @@ appearance = "dark"
 
 ### Features
 
-- [ ] Add some sort of pallet witch could be diplayed when picking a theme in raycast extension
-- [ ] Install command to install themes from a GitHub URL
-- [ ] Create theme cmd which opens tui form and generates a folder to work on in themesDir()
-- [ ] `doctor` / `status` command report current theme, settings, and which integrations are applied/available
-- [ ] Add some sort of release strategie (GoReleaser?)
-- [ ] Restrict asset copying on materialize to active integrations only, so the current folder doesn't get polluted _(low)_
-- [ ] Maybe instead of providing assets like eza and yazi themes there should also be a way to provide a url whitch generates the asset from that url, the drawback is that this needs a internet connection to work, so we i may need cashing. this would bring the benefit of just linking to a source for a port whitch already exists so no asset duplication needed in a theme spec.
+- 1 Only materialize assets for active integrations, so the current folder doesn't get polluted _(low)_
+- 2 Set up a release pipeline (GoReleaser?)
+- 3 `doctor` / `status` command: report current theme, settings, and which integrations are applied/available
+- 4 Expose a color palette per theme so the raycast extension can display it in the theme picker
+- 5 `create` command: TUI form that scaffolds a new theme folder in themesDir()
+- 6 `install` command: install themes from a GitHub URL
+- 7 Allow theme specs to reference assets by URL instead of bundling them (link existing ports, no duplication). Needs network + caching for offline use.
 
 ### Missing integrations
 

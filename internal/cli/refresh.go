@@ -2,7 +2,6 @@ package cli
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/nico-mayer/themectl-cli/internal/config"
 	"github.com/nico-mayer/themectl-cli/internal/engine"
@@ -25,18 +24,7 @@ func refreshCmd(cfg config.Config, store *theme.Store, eng *engine.Engine) *cli.
 			if err != nil {
 				return err
 			}
-
-			slog.Debug("materializing theme", "theme", res.ID(), "dir", cfg.CurrentDir())
-			if err := store.Materialize(res.ID(), cfg.CurrentDir()); err != nil {
-				return err
-			}
-
-			if err := eng.Apply(res); err != nil {
-				return err
-			}
-
-			slog.Info("theme refreshed", "theme", res.ID())
-			return nil
+			return applyTheme(res, cfg, store, eng)
 		},
 	}
 }

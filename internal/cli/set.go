@@ -68,33 +68,11 @@ func setRandom(cfg config.Config, store *theme.Store, eng *engine.Engine) *cli.C
 	return &cli.Command{
 		Name:  "random",
 		Usage: "sets a random theme",
-		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:    "light",
-				Aliases: []string{"l"},
-				Usage:   "only use light themes",
-			},
-			&cli.BoolFlag{
-				Name:    "dark",
-				Aliases: []string{"d"},
-				Usage:   "only use dark themes",
-			},
-		},
+		Flags: appearanceFlags(),
 		Action: func(ctx context.Context, c *cli.Command) error {
-			light := c.Bool("light")
-			dark := c.Bool("dark")
-
-			if light && dark {
-				return fmt.Errorf("cannot use --light and --dark together")
-			}
-
-			var appearance theme.Appearance
-			if light {
-				appearance = theme.Light
-			} else if dark {
-				appearance = theme.Dark
-			} else {
-				appearance = ""
+			appearance, err := appearanceFromFlags(c)
+			if err != nil {
+				return err
 			}
 
 			resolved, err := store.PickRandom(appearance)

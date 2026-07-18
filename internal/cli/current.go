@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"maps"
 	"os"
@@ -28,10 +29,17 @@ func currentCmd(cfg config.Config, store *theme.Store) *cli.Command {
 	return &cli.Command{
 		Name:  "current",
 		Usage: "get the current active theme",
+		Flags: []cli.Flag{
+			jsonFlag(),
+		},
 		Action: func(ctx context.Context, c *cli.Command) error {
 			curr, err := theme.ReadCurrent(cfg.CurrentFile())
 			if err != nil {
 				return err
+			}
+
+			if c.Bool("json") {
+				return printCurrentJSON(curr, store)
 			}
 
 			if !isatty.IsTerminal(os.Stdout.Fd()) {
@@ -92,4 +100,20 @@ func renderThemeDetails(r theme.Resolved) string {
 			}
 		}).
 		Render()
+}
+
+func printCurrentJSON(current string, store *theme.Store) error {
+	type themeJSON struct {
+		ID         string           `json:"id"`
+		Family     string           `json:"family"`
+		Variant    string           `json:"variant"`
+		Appearance theme.Appearance `json:"appearance"`
+	}
+
+	resolved, err := store.Resolve(current)
+	if err != nil {
+		return err
+	}
+
+	return json.NewEncoder(os.Stdout).Encode(themeJSON{resolved.ID(), resolved.Family, resolved.Variant, resolved.Appearance})
 }

@@ -26,40 +26,17 @@ func listCmd(cfg config.Config, store *theme.Store) *cli.Command {
 		Name:    "list",
 		Aliases: []string{"ls"},
 		Usage:   "List all available themes",
-		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:    "light",
-				Aliases: []string{"l"},
-				Usage:   "only list light themes",
-			},
-			&cli.BoolFlag{
-				Name:    "dark",
-				Aliases: []string{"d"},
-				Usage:   "only list dark themes",
-			},
-			&cli.BoolFlag{
-				Name:  "json",
-				Usage: "output themes in JSON format",
-			},
-		},
+		Flags: append(
+			appearanceFlags(),
+			jsonFlag(),
+		),
 		Action: func(ctx context.Context, c *cli.Command) error {
-			light := c.Bool("light")
-			dark := c.Bool("dark")
-
-			if light && dark {
-				return fmt.Errorf("cannot use --light and --dark together")
+			appearance, err := appearanceFromFlags(c)
+			if err != nil {
+				return err
 			}
 
-			var all []theme.Resolved
-			var err error
-			switch {
-			case light:
-				all, err = store.List(theme.Light)
-			case dark:
-				all, err = store.List(theme.Dark)
-			default:
-				all, err = store.List(theme.AnyAppearance)
-			}
+			all, err := store.List(appearance)
 			if err != nil {
 				return err
 			}
