@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -36,6 +37,10 @@ func listCmd(cfg config.Config, store *theme.Store) *cli.Command {
 				Aliases: []string{"d"},
 				Usage:   "only list dark themes",
 			},
+			&cli.BoolFlag{
+				Name:  "json",
+				Usage: "output themes in JSON format",
+			},
 		},
 		Action: func(ctx context.Context, c *cli.Command) error {
 			light := c.Bool("light")
@@ -59,6 +64,10 @@ func listCmd(cfg config.Config, store *theme.Store) *cli.Command {
 				return err
 			}
 
+			if c.Bool("json") {
+				return printThemesJSON(all)
+			}
+
 			if !isatty.IsTerminal(os.Stdout.Fd()) {
 				for _, t := range all {
 					fmt.Println(t.ID())
@@ -72,6 +81,22 @@ func listCmd(cfg config.Config, store *theme.Store) *cli.Command {
 			return nil
 		},
 	}
+}
+
+func printThemesJSON(themes []theme.Resolved) error {
+	type themeJSON struct {
+		ID         string           `json:"id"`
+		Family     string           `json:"family"`
+		Variant    string           `json:"variant"`
+		Appearance theme.Appearance `json:"appearance"`
+	}
+
+	out := make([]themeJSON, 0, len(themes))
+	for _, t := range themes {
+		out = append(out, themeJSON{t.ID(), t.Family, t.Variant, t.Appearance})
+	}
+
+	return json.NewEncoder(os.Stdout).Encode(out)
 }
 
 func renderThemeList(themes []theme.Resolved, current string) string {

@@ -37,7 +37,6 @@ appearance = "dark"
 - [ ] Install command to install themes from a GitHub URL
 - [ ] Create theme cmd which opens tui form and generates a folder to work on in themesDir()
 - [ ] `doctor` / `status` command report current theme, settings, and which integrations are applied/available
-- [ ] `--json` output flag for `list` (let others consume it for example read appearance)
 - [ ] Add some sort of release strategie (GoReleaser?)
 - [ ] Restrict asset copying on materialize to active integrations only, so the current folder doesn't get polluted _(low)_
 - [ ] Maybe instead of providing assets like eza and yazi themes there should also be a way to provide a url whitch generates the asset from that url, the drawback is that this needs a internet connection to work, so we i may need cashing. this would bring the benefit of just linking to a source for a port whitch already exists so no asset duplication needed in a theme spec.
