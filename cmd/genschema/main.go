@@ -57,23 +57,17 @@ func run() error {
 
 	targets := []target{
 		{
-			file:        "family.schema.json",
-			title:       "themectl family.toml",
-			description: "Family-wide defaults inherited by every variant of the theme family.",
-			value:       &theme.FamilyFile{},
-		},
-		{
-			file:        "variant.schema.json",
-			title:       "themectl variant.toml",
-			description: "A single theme variant. Values not set here are inherited from the family's [defaults].",
-			value:       &theme.VariantFile{},
-		},
-		{
 			file:        "settings.schema.json",
 			title:       "themectl.toml",
 			description: "themectl settings. Values set here override the built-in defaults.",
 			value:       &config.Settings{},
 			post:        injectIntegrationNames,
+		},
+		{
+			file:        "theme.schema.json",
+			title:       "themectl theme.toml",
+			description: "A theme family: defaults inherited by every variant, and the variants that override them.",
+			value:       &theme.ThemeFile{},
 		},
 	}
 

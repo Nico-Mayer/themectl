@@ -17,16 +17,46 @@ themectl wallpaper --random   # reshuffle wallpaper for current theme
 themectl -v <cmd>             # verbose logs to stderr
 ```
 
-## Schemas
+## Configuration
 
-JSON Schemas for the TOML files live in [`schemas/`](schemas/): `family.schema.json`,
-`variant.schema.json` and `settings.schema.json`. TOML LSPs (tombi, taplo /
-Even Better TOML) pick them up via a directive on the first line for
-completions and validation:
+Everything lives in `~/.config/themectl`. Each theme family is a folder under
+`themes/` described by a single `theme.toml`: family-wide `[defaults]` plus one
+`[variants.<name>]` table per variant, where a variant overrides individual
+fields and inherits the rest. Assets (wallpapers, `nvim.lua`, `eza.yml`, …) sit
+next to the spec or in an optional per-variant folder. Global settings go in
+`themectl.toml` at the root; the `#:schema` directive on the first line gives
+completion and validation in schema-aware TOML editors.
 
 ```toml
-#:schema https://raw.githubusercontent.com/Nico-Mayer/themectl-cli/main/schemas/variant.schema.json
+# themes/catppuccin/theme.toml
+#:schema https://raw.githubusercontent.com/Nico-Mayer/themectl/main/schemas/theme.schema.json
+[defaults]
 appearance = "dark"
+
+[defaults.zed]
+theme = "Catppuccin Mocha"
+icon_theme = "Catppuccin Mocha"
+extensions = ["https://github.com/catppuccin/zed"]
+
+[variants.mocha]
+# empty table declares the variant; inherits all defaults
+
+[variants.latte]
+appearance = "light"
+
+[variants.latte.zed]
+theme = "Catppuccin Latte" # icon_theme and extensions inherited
+```
+
+```toml
+# themectl.toml
+#:schema https://raw.githubusercontent.com/Nico-Mayer/themectl/main/schemas/settings.schema.json
+integrations = ["ghostty", "zed", "wallpaper", "system-appearance"]
+default-theme = "catppuccin/mocha"
+
+[config-dirs]
+ghostty = "~/.config/ghostty"
+zed = "$XDG_CONFIG_HOME/zed"
 ```
 
 ## Roadmap

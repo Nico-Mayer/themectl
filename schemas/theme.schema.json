@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/Nico-Mayer/themectl-cli/main/schemas/theme.schema.json",
+  "properties": {
+    "defaults": {
+      "properties": {
+        "appearance": {
+          "type": "string",
+          "enum": [
+            "dark",
+            "light"
+          ],
+          "description": "Appearance of this variant. Falls back to the family default; resolving fails if neither sets it."
+        },
+        "ghostty": {
+          "properties": {
+            "theme": {
+              "type": "string",
+              "description": "Ghostty theme name."
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "description": "Ghostty integration settings."
+        },
+        "helix": {
+          "properties": {
+            "theme": {
+              "type": "string",
+              "description": "Helix theme name."
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "description": "Helix integration settings."
+        },
+        "zed": {
+          "properties": {
+            "theme": {
+              "type": "string",
+              "description": "Zed theme name."
+            },
+            "icon_theme": {
+              "type": "string",
+              "description": "Zed icon theme name."
+            },
+            "extensions": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true,
+              "description": "Zed extension repo URLs to install."
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "description": "Zed integration settings."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Defaults inherited by every variant; a variant may override any of them."
+    },
+    "variants": {
+      "additionalProperties": {
+        "properties": {
+          "appearance": {
+            "type": "string",
+            "enum": [
+              "dark",
+              "light"
+            ],
+            "description": "Appearance of this variant. Falls back to the family default; resolving fails if neither sets it."
+          },
+          "ghostty": {
+            "properties": {
+              "theme": {
+                "type": "string",
+                "description": "Ghostty theme name."
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "description": "Ghostty integration settings."
+          },
+          "helix": {
+            "properties": {
+              "theme": {
+                "type": "string",
+                "description": "Helix theme name."
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "description": "Helix integration settings."
+          },
+          "zed": {
+            "properties": {
+              "theme": {
+                "type": "string",
+                "description": "Zed theme name."
+              },
+              "icon_theme": {
+                "type": "string",
+                "description": "Zed icon theme name."
+              },
+              "extensions": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true,
+                "description": "Zed extension repo URLs to install."
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "description": "Zed integration settings."
+          },
+          "wallpaper_sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true,
+            "description": "Extra wallpaper sources: theme ids (family/variant) or shared wallpaper dir names. The variant's own wallpaper dir is always included."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object"
+      },
+      "type": "object",
+      "description": "Variants of this family"
+    }
+  },
+  "additionalProperties": false,
+  "type": "object",
+  "title": "themectl theme.toml",
+  "description": "A theme family: defaults inherited by every variant, and the variants that override them."
+}
