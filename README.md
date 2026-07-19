@@ -51,12 +51,20 @@ theme = "Catppuccin Latte" # icon_theme and extensions inherited
 ```toml
 # themectl.toml
 #:schema https://raw.githubusercontent.com/Nico-Mayer/themectl/main/schemas/settings.schema.json
-integrations = ["ghostty", "zed", "wallpaper", "system-appearance"]
-default-theme = "catppuccin/mocha"
 
-[config-dirs]
-ghostty = "~/.config/ghostty"
-zed = "$XDG_CONFIG_HOME/zed"
+# integrations to run on apply; omit to run the default set
+integrations = ["ghostty", "zed", "nvim", "wallpaper", "system-appearance"]
+
+# file-editing integrations: point themectl at the file it should edit
+[ghostty]
+config_file = "~/.config/ghostty/config.ghostty"
+
+[zed]
+config_file = "$XDG_CONFIG_HOME/zed/settings.json"
+
+# symlink integrations: choose where the theme asset is linked
+[nvim]
+target = "~/.dotfiles/nvim/plugin/99_theme.lua"
 ```
 
 ## Roadmap
