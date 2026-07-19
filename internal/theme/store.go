@@ -47,7 +47,7 @@ func (s *Store) Resolve(id string) (Resolved, error) {
 
 	return Resolve(
 		Family{Name: famName, Defaults: tf.Defaults},
-		Variant{Name: variantName, VariantSpec: vs},
+		Variant{Name: variantName, Spec: vs},
 	)
 }
 
@@ -147,7 +147,7 @@ func (s *Store) resolveFamily(name string) []Resolved {
 	var out []Resolved
 
 	for _, v := range slices.Sorted(maps.Keys(tf.Variants)) {
-		res, err := Resolve(fam, Variant{Name: v, VariantSpec: tf.Variants[v]})
+		res, err := Resolve(fam, Variant{Name: v, Spec: tf.Variants[v]})
 		if err != nil {
 			slog.Debug("skipping unresolvable theme", "theme", name+"/"+v, "err", err)
 			continue

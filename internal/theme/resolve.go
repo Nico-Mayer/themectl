@@ -13,7 +13,7 @@ type Family struct {
 
 type Variant struct {
 	Name string
-	VariantSpec
+	Spec
 }
 
 type Resolved struct {
@@ -55,7 +55,7 @@ func Resolve(fam Family, variant Variant) (Resolved, error) {
 		Family:           fam.Name,
 		Variant:          variant.Name,
 		Appearance:       *spec.Appearance,
-		WallpaperSources: append(slices.Clone(variant.WallpaperSources), id),
+		WallpaperSources: append(slices.Clone(spec.WallpaperSources), id),
 		Ghostty:          spec.Ghostty,
 		Helix:            spec.Helix,
 		Zed:              spec.Zed,
@@ -66,6 +66,9 @@ func merge(base, over Spec) Spec {
 	out := over
 	if out.Appearance == nil {
 		out.Appearance = base.Appearance
+	}
+	if out.WallpaperSources == nil {
+		out.WallpaperSources = base.WallpaperSources
 	}
 	ov := reflect.ValueOf(&out).Elem()
 	bv := reflect.ValueOf(base)

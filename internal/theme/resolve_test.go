@@ -17,11 +17,9 @@ func TestResolve_variantOverridesFamily(t *testing.T) {
 	}
 	v := Variant{
 		Name: "latte",
-		VariantSpec: VariantSpec{
-			Spec: Spec{
-				Appearance: new(Light),
-				Ghostty:    &GhosttySpec{Theme: "catppuccin-latte"},
-			},
+		Spec: Spec{
+			Appearance:       new(Light),
+			Ghostty:          &GhosttySpec{Theme: "catppuccin-latte"},
 			WallpaperSources: []string{"catppuccin/macchiato"},
 		},
 	}
@@ -52,6 +50,24 @@ func TestResolve_wallpaperSourcesIncludeOwnID(t *testing.T) {
 	testutil.Diff(t, []string{"f/v"}, got.WallpaperSources)
 }
 
+func TestResolve_wallpaperSourcesInheritedFromFamily(t *testing.T) {
+	fam := Family{Name: "f", Defaults: Spec{Appearance: new(Dark), WallpaperSources: []string{"shared"}}}
+	v := Variant{Name: "v"}
+
+	got, err := Resolve(fam, v)
+	testutil.NoErr(t, err)
+	testutil.Diff(t, []string{"shared", "f/v"}, got.WallpaperSources)
+}
+
+func TestResolve_wallpaperSourcesVariantOverridesFamily(t *testing.T) {
+	fam := Family{Name: "f", Defaults: Spec{Appearance: new(Dark), WallpaperSources: []string{"shared"}}}
+	v := Variant{Name: "v", Spec: Spec{WallpaperSources: []string{"own"}}}
+
+	got, err := Resolve(fam, v)
+	testutil.NoErr(t, err)
+	testutil.Diff(t, []string{"own", "f/v"}, got.WallpaperSources)
+}
+
 func TestResolve_missingAppearanceFails(t *testing.T) {
 	if _, err := Resolve(Family{Name: "f"}, Variant{Name: "v"}); err == nil {
 		t.Fatal("expected error when appearance is set by neither family nor variant")
@@ -60,7 +76,7 @@ func TestResolve_missingAppearanceFails(t *testing.T) {
 
 func TestResolve_doesNotMutateInputs(t *testing.T) {
 	fam := Family{Name: "f", Defaults: Spec{Appearance: new(Dark), Zed: &ZedSpec{Theme: "a", IconTheme: "a-icons"}}}
-	v := Variant{Name: "v", VariantSpec: VariantSpec{Spec: Spec{Zed: &ZedSpec{Theme: "b"}}}}
+	v := Variant{Name: "v", Spec: Spec{Zed: &ZedSpec{Theme: "b"}}}
 
 	_, err := Resolve(fam, v)
 	testutil.NoErr(t, err)

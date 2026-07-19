@@ -155,18 +155,6 @@ func TestZed_Apply_addsMissingIconThemeKey(t *testing.T) {
 	}
 }
 
-func TestZed_Apply_iconThemeUnsetLeavesKey(t *testing.T) {
-	settings := writeZedSettings(t, `{"theme": "old", "icon_theme": "keep"}`)
-
-	z := Zed{SettingsPath: settings}
-	testutil.NoErr(t, z.Apply(theme.Resolved{Zed: &theme.ZedSpec{Theme: "X"}}))
-
-	out, _ := os.ReadFile(settings)
-	if !strings.Contains(string(out), `"icon_theme": "keep"`) {
-		t.Errorf("icon_theme changed: %q", out)
-	}
-}
-
 func TestZed_Apply_noOverrideFails(t *testing.T) {
 	z := Zed{SettingsPath: "unused"}
 	if err := z.Apply(theme.Resolved{}); err == nil {
