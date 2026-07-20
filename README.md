@@ -71,8 +71,8 @@ target = "~/.dotfiles/nvim/plugin/99_theme.lua"
 
 ### Features
 
-- `create` command: TUI form that scaffolds a new theme folder in themesDir()
 - `install` command: install themes from a GitHub URL
+- `create` command: TUI form that scaffolds a new theme folder in themesDir()
 - `clean <theme>` command: looks at its outside deps like zed extensions and uninstalls them and remove .head files for a reinstall without guard
 - Allow theme specs to reference assets by URL instead of bundling them (link existing ports, no duplication). Needs network + caching for offline use.
 - Add a option in settings to make a integration exclusicve for one operating system or exlude for one

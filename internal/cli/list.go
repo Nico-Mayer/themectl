@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Nico-Mayer/themectl/internal/store"
 	"github.com/Nico-Mayer/themectl/internal/theme"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mattn/go-isatty"
@@ -51,7 +52,7 @@ func (a app) listCmd() *cli.Command {
 				return nil
 			}
 
-			curr, _ := theme.ReadCurrent(a.cfg.CurrentFile())
+			curr, _ := store.ReadCurrent(a.cfg.CurrentFile())
 			fmt.Println(renderThemeList(all, strings.TrimSpace(curr)))
 
 			return nil
