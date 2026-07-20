@@ -6,6 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/Nico-Mayer/themectl/internal/store"
+	"github.com/Nico-Mayer/themectl/internal/ui"
 	"github.com/urfave/cli/v3"
 )
 
@@ -26,7 +27,11 @@ func (a app) installCmd() *cli.Command {
 			if url == "" {
 				return fmt.Errorf("no git URL provided")
 			}
-			family, err := store.Install(a.cfg.ThemesDir(), url, c.String("name"), c.Bool("force"))
+			var family string
+			err := ui.Spin("Installing theme", func() (err error) {
+				family, err = store.Install(a.cfg.ThemesDir(), url, c.String("name"), c.Bool("force"))
+				return err
+			})
 			if err != nil {
 				return err
 			}

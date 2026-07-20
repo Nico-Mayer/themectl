@@ -11,18 +11,11 @@ import (
 
 	"github.com/Nico-Mayer/themectl/internal/store"
 	"github.com/Nico-Mayer/themectl/internal/theme"
+	"github.com/Nico-Mayer/themectl/internal/ui"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
 	"github.com/mattn/go-isatty"
 	"github.com/urfave/cli/v3"
-)
-
-var (
-	keyStyle    = lipgloss.NewStyle().Faint(true).Padding(0, 1)
-	valueStyle  = lipgloss.NewStyle().Padding(0, 1)
-	accentStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("5")).Padding(0, 1)
-	lightStyle  = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("3")).Padding(0, 1)
-	darkStyle   = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("4")).Padding(0, 1)
 )
 
 func (a app) currentCmd() *cli.Command {
@@ -79,10 +72,8 @@ func renderThemeDetails(r theme.Resolved) string {
 		}
 	}
 
-	appearanceStyle := darkStyle
-	if r.Appearance == theme.Light {
-		appearanceStyle = lightStyle
-	}
+	cell := lipgloss.NewStyle().Padding(0, 1)
+	appearanceStyle := ui.Appearance(r.Appearance).Padding(0, 1)
 
 	return table.New().
 		Border(lipgloss.RoundedBorder()).
@@ -91,13 +82,13 @@ func renderThemeDetails(r theme.Resolved) string {
 		StyleFunc(func(row, col int) lipgloss.Style {
 			switch {
 			case row == themesRow:
-				return accentStyle
+				return ui.Accent.Padding(0, 1)
 			case row == 1 && col == 1:
 				return appearanceStyle
 			case col == 0:
-				return keyStyle
+				return ui.Muted.Padding(0, 1)
 			default:
-				return valueStyle
+				return cell
 			}
 		}).
 		Render()

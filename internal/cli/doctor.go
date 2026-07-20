@@ -11,6 +11,7 @@ import (
 	"github.com/Nico-Mayer/themectl/internal/config"
 	"github.com/Nico-Mayer/themectl/internal/integration"
 	"github.com/Nico-Mayer/themectl/internal/store"
+	"github.com/Nico-Mayer/themectl/internal/ui"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/urfave/cli/v3"
 )
@@ -112,14 +113,6 @@ func themeFound(store *store.Store, id string) bool {
 	return err == nil
 }
 
-var (
-	doctorSectionStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("5"))
-	doctorFaintStyle   = lipgloss.NewStyle().Faint(true)
-	doctorOKStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("2"))
-	doctorWarnStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("3"))
-	doctorErrStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("1"))
-)
-
 type kvRow struct {
 	key   string
 	value string
@@ -136,7 +129,7 @@ func renderDoctorReport(r doctorReport) error {
 }
 
 func renderSection(title, body string) string {
-	return doctorSectionStyle.Render(title) + "\n" + body
+	return ui.Accent.Render(title) + "\n" + body
 }
 
 func renderKVRows(rows []kvRow) string {
@@ -146,7 +139,7 @@ func renderKVRows(rows []kvRow) string {
 	}
 	lines := make([]string, 0, len(rows))
 	for _, row := range rows {
-		key := doctorFaintStyle.Render(fmt.Sprintf("%-*s", width, row.key))
+		key := ui.Muted.Render(fmt.Sprintf("%-*s", width, row.key))
 		lines = append(lines, fmt.Sprintf("  %s  %s", key, row.value))
 	}
 	return strings.Join(lines, "\n")
@@ -155,14 +148,14 @@ func renderKVRows(rows []kvRow) string {
 func settingsRows(r doctorReport) []kvRow {
 	configFile := r.ConfigFile
 	if !r.ConfigFileExists {
-		configFile = doctorFaintStyle.Render("(none - using built-in defaults)")
+		configFile = ui.Muted.Render("(none - using built-in defaults)")
 	}
 	rows := []kvRow{
 		{"Config", configFile},
 		{"Root", r.Root},
 	}
 	if !r.ConfigFileExists {
-		rows = append(rows, kvRow{"", doctorFaintStyle.Render("create " + r.ConfigFile + " to customize")})
+		rows = append(rows, kvRow{"", ui.Muted.Render("create " + r.ConfigFile + " to customize")})
 	}
 	return rows
 }
@@ -171,13 +164,13 @@ func themeRows(r doctorReport) []kvRow {
 	currentTheme := r.CurrentTheme
 	switch {
 	case currentTheme == "":
-		currentTheme = doctorFaintStyle.Render("(none set - run `themectl set`)")
+		currentTheme = ui.Muted.Render("(none set - run `themectl set`)")
 	case !r.CurrentThemeFound:
-		currentTheme += "  " + doctorErrStyle.Render("(not found in themes dir)")
+		currentTheme += "  " + ui.Danger.Render("(not found in themes dir)")
 	}
 	installed := fmt.Sprintf("%d", r.InstalledThemes)
 	if r.InstalledThemes == 0 {
-		installed = doctorErrStyle.Render("0 - add themes under " + r.Root + "/themes")
+		installed = ui.Danger.Render("0 - add themes under " + r.Root + "/themes")
 	}
 	return []kvRow{
 		{"Current", currentTheme},
@@ -187,7 +180,7 @@ func themeRows(r doctorReport) []kvRow {
 
 func renderIntegrations(r doctorReport) string {
 	if len(r.Integrations) == 0 && len(r.Unknown) == 0 {
-		return doctorFaintStyle.Render("  (none)")
+		return ui.Muted.Render("  (none)")
 	}
 
 	width := 0
@@ -202,15 +195,15 @@ func renderIntegrations(r doctorReport) string {
 	for _, s := range r.Integrations {
 		switch {
 		case !s.Enabled:
-			lines = append(lines, integrationLine(doctorFaintStyle, "○", s.Name, "available", width))
+			lines = append(lines, integrationLine(ui.Muted, "○", s.Name, "available", width))
 		case !s.Healthy:
-			lines = append(lines, integrationLine(doctorWarnStyle, "!", s.Name, s.Detail, width))
+			lines = append(lines, integrationLine(ui.Warning, "!", s.Name, s.Detail, width))
 		default:
-			lines = append(lines, integrationLine(doctorOKStyle, "●", s.Name, "enabled", width))
+			lines = append(lines, integrationLine(ui.Success, "●", s.Name, "enabled", width))
 		}
 	}
 	for _, name := range r.Unknown {
-		lines = append(lines, integrationLine(doctorErrStyle, "✗", name, "unknown - enabled but not registered", width))
+		lines = append(lines, integrationLine(ui.Danger, "✗", name, "unknown - enabled but not registered", width))
 	}
 	return strings.Join(lines, "\n")
 }

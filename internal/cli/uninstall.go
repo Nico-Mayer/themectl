@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Nico-Mayer/themectl/internal/store"
+	"github.com/Nico-Mayer/themectl/internal/ui"
 	"github.com/charmbracelet/huh"
 	"github.com/urfave/cli/v3"
 )
@@ -50,7 +51,7 @@ func pickThemeFamily(store *store.Store) (string, error) {
 		return "", err
 	}
 
-	var options []huh.Option[string]
+	var families []string
 	seen := map[string]bool{}
 	for _, t := range all {
 		family, _, ok := strings.Cut(t, "/")
@@ -58,24 +59,7 @@ func pickThemeFamily(store *store.Store) (string, error) {
 			continue
 		}
 		seen[family] = true
-		options = append(options, huh.NewOption(family, family))
+		families = append(families, family)
 	}
-
-	var selected string
-	form := huh.NewForm(
-		huh.NewGroup(
-			huh.NewSelect[string]().
-				Title("Themes").
-				Options(options...).
-				Filtering(true).
-				// Height(10).
-				Value(&selected),
-		),
-	)
-
-	if err := form.Run(); err != nil {
-		return "", err
-	}
-
-	return selected, nil
+	return ui.Select("Themes", families)
 }

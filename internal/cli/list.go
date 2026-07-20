@@ -9,17 +9,12 @@ import (
 
 	"github.com/Nico-Mayer/themectl/internal/store"
 	"github.com/Nico-Mayer/themectl/internal/theme"
-	"github.com/charmbracelet/lipgloss"
+	"github.com/Nico-Mayer/themectl/internal/ui"
 	"github.com/mattn/go-isatty"
 	"github.com/urfave/cli/v3"
 )
 
 const listColGap = 4
-
-var (
-	activeStyle     = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("5"))
-	listHeaderStyle = lipgloss.NewStyle().Faint(true)
-)
 
 func (a app) listCmd() *cli.Command {
 	return &cli.Command{
@@ -83,19 +78,14 @@ func renderThemeList(themes []theme.Resolved, current string) string {
 	}
 	width += listColGap
 
-	lines := []string{listHeaderStyle.Render(fmt.Sprintf("  %-*s%s", width, "Theme", "Appearance"))}
+	lines := []string{ui.Muted.Render(fmt.Sprintf("  %-*s%s", width, "Theme", "Appearance"))}
 	for _, t := range themes {
-		appearanceStyle := darkStyle
-		if t.Appearance == theme.Light {
-			appearanceStyle = lightStyle
-		}
-
 		id := fmt.Sprintf("  %-*s", width, t.ID())
 		if t.ID() == current {
-			id = activeStyle.Render(fmt.Sprintf("● %-*s", width, t.ID()))
+			id = ui.Accent.Render(fmt.Sprintf("● %-*s", width, t.ID()))
 		}
 
-		lines = append(lines, id+appearanceStyle.UnsetPadding().Render(string(t.Appearance)))
+		lines = append(lines, id+ui.Appearance(t.Appearance).Render(string(t.Appearance)))
 	}
 
 	return strings.Join(lines, "\n")

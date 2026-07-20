@@ -9,6 +9,7 @@ import (
 	"github.com/Nico-Mayer/themectl/internal/integration"
 	"github.com/Nico-Mayer/themectl/internal/store"
 	"github.com/Nico-Mayer/themectl/internal/theme"
+	"github.com/Nico-Mayer/themectl/internal/ui"
 	"github.com/charmbracelet/huh"
 	"github.com/urfave/cli/v3"
 )
@@ -79,13 +80,16 @@ func (a app) setRandom() *cli.Command {
 
 func applyTheme(resolvedTheme theme.Resolved, app app) error {
 	slog.Debug("materializing theme", "theme", resolvedTheme.ID(), "dir", app.cfg.CurrentDir())
-	if err := app.store.Materialize(resolvedTheme.ID(), app.cfg.CurrentDir()); err != nil {
-		return err
-	}
-	if err := integration.ApplyAll(app.integrations, resolvedTheme); err != nil {
-		return err
-	}
-	if err := store.WriteCurrent(app.cfg.CurrentFile(), resolvedTheme.ID()); err != nil {
+	err := ui.Spin("Applying theme", func() error {
+		if err := app.store.Materialize(resolvedTheme.ID(), app.cfg.CurrentDir()); err != nil {
+			return err
+		}
+		if err := integration.ApplyAll(app.integrations, resolvedTheme); err != nil {
+			return err
+		}
+		return store.WriteCurrent(app.cfg.CurrentFile(), resolvedTheme.ID())
+	})
+	if err != nil {
 		return err
 	}
 	slog.Info("theme set", "theme", resolvedTheme.ID())
@@ -97,29 +101,7 @@ func pickTheme(store *store.Store) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	options := make([]huh.Option[string], len(all))
-	for i, t := range all {
-		options[i] = huh.NewOption(t, t)
-	}
-
-	var selected string
-	form := huh.NewForm(
-		huh.NewGroup(
-			huh.NewSelect[string]().
-				Title("Themes").
-				Options(options...).
-				Filtering(true).
-				// Height(10).
-				Value(&selected),
-		),
-	)
-
-	if err := form.Run(); err != nil {
-		return "", err
-	}
-
-	return selected, nil
+	return ui.Select("Themes", all)
 }
 
 func resolveThemeArg(arg string, store *store.Store) (string, error) {

@@ -8,6 +8,8 @@ import (
 	"github.com/Nico-Mayer/themectl/internal/config"
 	"github.com/Nico-Mayer/themectl/internal/integration"
 	"github.com/Nico-Mayer/themectl/internal/store"
+	"github.com/Nico-Mayer/themectl/internal/ui"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	urfaveCli "github.com/urfave/cli/v3"
 )
@@ -54,11 +56,12 @@ func New(cfg config.Config, store *store.Store, integrations []integration.Integ
 				level = slog.LevelDebug
 				withTime = true
 			}
-			handler := log.NewWithOptions(os.Stderr, log.Options{
+			handler := log.NewWithOptions(ui.Console, log.Options{
 				Level:           log.Level(level),
 				ReportTimestamp: withTime,
 				TimeFormat:      "15:04:05",
 			})
+			handler.SetColorProfile(lipgloss.NewRenderer(os.Stderr).ColorProfile())
 			slog.SetDefault(slog.New(handler))
 
 			return nil, nil
