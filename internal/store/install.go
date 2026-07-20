@@ -25,8 +25,8 @@ func Install(themesDir, url, name string, force bool) (string, error) {
 		return "", errors.New("name not allowed")
 	}
 
-	if _, err := exec.LookPath("git"); err != nil {
-		return "", fmt.Errorf("themectl install requires the git CLI: %w", err)
+	if err := checkGitInstalled(); err != nil {
+		return "", err
 	}
 
 	if err := os.MkdirAll(themesDir, 0o755); err != nil {
@@ -101,4 +101,11 @@ func deriveFamilyName(url string) string {
 	base := path.Base(strings.TrimRight(url, "/"))
 	base = strings.TrimSuffix(base, ".git")
 	return strings.ToLower(base)
+}
+
+func checkGitInstalled() error {
+	if _, err := exec.LookPath("git"); err != nil {
+		return fmt.Errorf("themectl requires the git CLI: %w", err)
+	}
+	return nil
 }
