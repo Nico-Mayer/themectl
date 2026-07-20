@@ -10,6 +10,7 @@ system appearance in a single, concurrent pass.
 ```sh
 themectl list                 # list all themes (ls)
 themectl install <git-url>    # install a theme from a git repo (--name, --force)
+themectl uninstall <theme-family>    # uninstalls the selected theme family from
 themectl set catppuccin/mocha # apply a theme (use, apply)
 themectl set random           # random theme  (--light / --dark to filter)
 themectl current              # print active theme
@@ -72,7 +73,6 @@ target = "~/.dotfiles/nvim/plugin/99_theme.lua"
 
 ### Features
 
-- `uninstall <theme>` command: uninstalls a theme
 - `update` command: updates all themes installed via git
 - `create` command: TUI form that scaffolds a new theme folder in themesDir()
 - `clean <theme>` command: looks at its outside deps like zed extensions and uninstalls them and remove .head files for a reinstall without guard
@@ -91,3 +91,4 @@ target = "~/.dotfiles/nvim/plugin/99_theme.lua"
 
 - Expose a color palette per theme so the raycast extension can display it in the theme picker
 - Philips Hue integration?
+- Declare some themes as favorites ?

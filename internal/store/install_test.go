@@ -169,3 +169,23 @@ func TestDeriveFamilyName(t *testing.T) {
 		testutil.Equal(t, deriveFamilyName(tc.url), tc.want)
 	}
 }
+
+func TestUninstall(t *testing.T) {
+	dir := t.TempDir()
+
+	target := filepath.Join(dir, "test-theme")
+	testutil.NoErr(t, os.MkdirAll(target, 0o755))
+	testutil.NoErr(t, os.WriteFile(filepath.Join(target, "theme.toml"), []byte(validThemeToml), 0o644))
+
+	testutil.NoErr(t, Uninstall(dir, "test-theme"))
+
+	if _, err := os.Stat(target); !os.IsNotExist(err) {
+		t.Errorf("theme dir still present after uninstall: %v", err)
+	}
+}
+
+func TestUninstall_notInstalled(t *testing.T) {
+	if err := Uninstall(t.TempDir(), "missing"); err == nil {
+		t.Error("expected error for theme that is not installed")
+	}
+}

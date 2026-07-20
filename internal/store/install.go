@@ -83,6 +83,20 @@ func Install(themesDir, url, name string, force bool) (string, error) {
 	return name, nil
 }
 
+func Uninstall(themesDir, name string) error {
+	target := filepath.Join(themesDir, name)
+
+	if _, err := os.Stat(target); os.IsNotExist(err) {
+		return fmt.Errorf("theme %q is not installed", name)
+	}
+
+	if err := os.RemoveAll(target); err != nil {
+		return fmt.Errorf("unable to remove theme: %w", err)
+	}
+
+	return nil
+}
+
 func deriveFamilyName(url string) string {
 	base := path.Base(strings.TrimRight(url, "/"))
 	base = strings.TrimSuffix(base, ".git")

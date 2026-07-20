@@ -93,7 +93,6 @@ func applyTheme(resolvedTheme theme.Resolved, app app) error {
 }
 
 func pickTheme(store *store.Store) (string, error) {
-
 	all, err := store.IDs()
 	if err != nil {
 		return "", err
@@ -122,6 +121,7 @@ func pickTheme(store *store.Store) (string, error) {
 
 	return selected, nil
 }
+
 func resolveThemeArg(arg string, store *store.Store) (string, error) {
 	if arg != "" {
 		return arg, nil
