@@ -10,7 +10,7 @@ import (
 
 	"github.com/Nico-Mayer/themectl/internal/config"
 	"github.com/Nico-Mayer/themectl/internal/integration"
-	"github.com/Nico-Mayer/themectl/internal/theme"
+	"github.com/Nico-Mayer/themectl/internal/store"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/urfave/cli/v3"
 )
@@ -52,7 +52,7 @@ func (a app) doctorCmd() *cli.Command {
 	}
 }
 
-func buildDoctorReport(cfg config.Config, store *theme.Store) doctorReport {
+func buildDoctorReport(cfg config.Config, st *store.Store) doctorReport {
 	r := doctorReport{
 		ConfigFile:   cfg.SettingsFile(),
 		Root:         cfg.Root,
@@ -60,7 +60,7 @@ func buildDoctorReport(cfg config.Config, store *theme.Store) doctorReport {
 		Unknown:      integration.Unknown(cfg),
 	}
 
-	curr, err := theme.ReadCurrent(cfg.CurrentFile())
+	curr, err := store.ReadCurrent(cfg.CurrentFile())
 	switch {
 	case err == nil:
 		r.CurrentTheme = strings.TrimSpace(curr)
@@ -71,10 +71,10 @@ func buildDoctorReport(cfg config.Config, store *theme.Store) doctorReport {
 	_, err = os.Stat(cfg.SettingsFile())
 	r.ConfigFileExists = err == nil
 
-	if ids, err := store.IDs(); err == nil {
+	if ids, err := st.IDs(); err == nil {
 		r.InstalledThemes = len(ids)
 	}
-	r.CurrentThemeFound = themeFound(store, r.CurrentTheme)
+	r.CurrentThemeFound = themeFound(st, r.CurrentTheme)
 
 	return r
 }
@@ -104,7 +104,7 @@ func integrationStatuses(cfg config.Config) []integrationStatus {
 	return statuses
 }
 
-func themeFound(store *theme.Store, id string) bool {
+func themeFound(store *store.Store, id string) bool {
 	if id == "" {
 		return false
 	}

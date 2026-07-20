@@ -9,6 +9,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/Nico-Mayer/themectl/internal/store"
 	"github.com/Nico-Mayer/themectl/internal/theme"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
@@ -32,7 +33,7 @@ func (a app) currentCmd() *cli.Command {
 			jsonFlag(),
 		},
 		Action: func(ctx context.Context, c *cli.Command) error {
-			curr, err := theme.ReadCurrent(a.cfg.CurrentFile())
+			curr, err := store.ReadCurrent(a.cfg.CurrentFile())
 			if err != nil {
 				return err
 			}
@@ -102,7 +103,7 @@ func renderThemeDetails(r theme.Resolved) string {
 		Render()
 }
 
-func printCurrentJSON(current string, store *theme.Store) error {
+func printCurrentJSON(current string, store *store.Store) error {
 	type themeJSON struct {
 		ID         string           `json:"id"`
 		Family     string           `json:"family"`

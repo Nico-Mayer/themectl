@@ -8,9 +8,8 @@ import (
 
 	"github.com/Nico-Mayer/themectl/internal/cli"
 	"github.com/Nico-Mayer/themectl/internal/config"
-	"github.com/Nico-Mayer/themectl/internal/engine"
 	"github.com/Nico-Mayer/themectl/internal/integration"
-	"github.com/Nico-Mayer/themectl/internal/theme"
+	"github.com/Nico-Mayer/themectl/internal/store"
 	"github.com/charmbracelet/log"
 )
 
@@ -21,10 +20,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	store := theme.NewStore(os.DirFS(cfg.ThemesDir()))
-	engine := engine.New(integration.Enabled(cfg))
+	store := store.NewStore(os.DirFS(cfg.ThemesDir()))
 
-	app := cli.New(cfg, store, engine)
+	app := cli.New(cfg, store, integration.Enabled(cfg))
 	app.Version = version()
 	if err := app.Run(context.Background(), os.Args); err != nil {
 		log.Fatal(err)

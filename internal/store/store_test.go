@@ -1,4 +1,4 @@
-package theme
+package store
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 	"testing/fstest"
 
 	"github.com/Nico-Mayer/themectl/internal/testutil"
+	"github.com/Nico-Mayer/themectl/internal/theme"
 )
 
 func testFS() fstest.MapFS {
@@ -50,7 +51,7 @@ func TestStore_Resolve(t *testing.T) {
 
 	latte, err := s.Resolve("catppuccin/latte")
 	testutil.NoErr(t, err)
-	testutil.Equal(t, latte.Appearance, Light)
+	testutil.Equal(t, latte.Appearance, theme.Light)
 	testutil.Equal(t, latte.Ghostty.Theme, "catppuccin-latte")
 	testutil.Diff(t, []string{"catppuccin/latte"}, latte.WallpaperSources)
 
@@ -64,11 +65,11 @@ func TestStore_Resolve_inheritsAppearanceFromFamily(t *testing.T) {
 
 	mocha, err := s.Resolve("catppuccin/mocha")
 	testutil.NoErr(t, err)
-	testutil.Equal(t, mocha.Appearance, Dark)
+	testutil.Equal(t, mocha.Appearance, theme.Dark)
 
 	latte, err := s.Resolve("catppuccin/latte")
 	testutil.NoErr(t, err)
-	testutil.Equal(t, latte.Appearance, Light)
+	testutil.Equal(t, latte.Appearance, theme.Light)
 }
 
 func TestStore_Resolve_badID(t *testing.T) {
@@ -96,11 +97,11 @@ func TestStore_ListAllByAppearance(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		want       []Resolved
-		appearance Appearance
+		want       []theme.Resolved
+		appearance theme.Appearance
 	}{
-		{"all dark themes", []Resolved{frappe, mocha}, Dark},
-		{"all light themes", []Resolved{latte}, Light},
+		{"all dark themes", []theme.Resolved{frappe, mocha}, theme.Dark},
+		{"all light themes", []theme.Resolved{latte}, theme.Light},
 	}
 
 	for _, tc := range tests {
@@ -110,51 +111,17 @@ func TestStore_ListAllByAppearance(t *testing.T) {
 	}
 }
 
-func TestStore_Assets(t *testing.T) {
-	fsys := fstest.MapFS{
-		"catppuccin/theme.toml":            {Data: []byte("[defaults]\nappearance='dark'\n[variants.mocha]\n[variants.latte]\n")},
-		"catppuccin/zed.json":              {Data: []byte(`{"from":"family"}`)},
-		"catppuccin/nvim.lua":              {Data: []byte("-- family")},
-		"catppuccin/mocha/nvim.lua":        {Data: []byte("-- mocha")},
-		"catppuccin/mocha/eza.yml":         {Data: []byte("mocha-only")},
-		"catppuccin/mocha/wallpaper/a.png": {Data: []byte("img")},
-	}
-	s := NewStore(fsys)
-
-	got, err := s.Assets("catppuccin", "mocha")
-	testutil.NoErr(t, err)
-	testutil.Diff(t, map[string]string{
-		"zed.json": "catppuccin/zed.json",
-		"nvim.lua": "catppuccin/mocha/nvim.lua",
-		"eza.yml":  "catppuccin/mocha/eza.yml",
-	}, got)
-}
-
-func TestStore_Assets_variantWithoutDirectory(t *testing.T) {
-	fsys := fstest.MapFS{
-		"catppuccin/theme.toml": {Data: []byte("[defaults]\nappearance='dark'\n[variants.latte]\n")},
-		"catppuccin/nvim.lua":   {Data: []byte("-- family")},
-	}
-	s := NewStore(fsys)
-
-	got, err := s.Assets("catppuccin", "latte")
-	testutil.NoErr(t, err)
-	testutil.Diff(t, map[string]string{
-		"nvim.lua": "catppuccin/nvim.lua",
-	}, got)
-}
-
 func TestStore_PickRandom(t *testing.T) {
 	s := NewStore(testFS())
 
 	t.Run("dark picks a dark theme", func(t *testing.T) {
-		got, err := s.PickRandom(Dark)
+		got, err := s.PickRandom(theme.Dark)
 		testutil.NoErr(t, err)
-		testutil.Equal(t, got.Appearance, Dark)
+		testutil.Equal(t, got.Appearance, theme.Dark)
 	})
 
 	t.Run("light picks the only light theme", func(t *testing.T) {
-		got, err := s.PickRandom(Light)
+		got, err := s.PickRandom(theme.Light)
 		testutil.NoErr(t, err)
 		testutil.Equal(t, got.ID(), "catppuccin/latte")
 	})

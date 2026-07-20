@@ -3,7 +3,7 @@ package cli
 import (
 	"context"
 
-	"github.com/Nico-Mayer/themectl/internal/theme"
+	"github.com/Nico-Mayer/themectl/internal/store"
 	"github.com/urfave/cli/v3"
 )
 
@@ -13,7 +13,7 @@ func (a app) refreshCmd() *cli.Command {
 		Aliases: []string{"reapply"},
 		Usage:   "reapply all integrations for current theme",
 		Action: func(ctx context.Context, c *cli.Command) error {
-			curr, err := theme.ReadCurrent(a.cfg.CurrentFile())
+			curr, err := store.ReadCurrent(a.cfg.CurrentFile())
 			if err != nil {
 				return err
 			}

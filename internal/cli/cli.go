@@ -6,24 +6,24 @@ import (
 	"os"
 
 	"github.com/Nico-Mayer/themectl/internal/config"
-	"github.com/Nico-Mayer/themectl/internal/engine"
-	"github.com/Nico-Mayer/themectl/internal/theme"
+	"github.com/Nico-Mayer/themectl/internal/integration"
+	"github.com/Nico-Mayer/themectl/internal/store"
 	"github.com/charmbracelet/log"
 	urfaveCli "github.com/urfave/cli/v3"
 )
 
 type app struct {
-	cfg    config.Config
-	store  *theme.Store
-	engine *engine.Engine
+	cfg          config.Config
+	store        *store.Store
+	integrations []integration.Integration
 }
 
-func New(cfg config.Config, store *theme.Store, engine *engine.Engine) *urfaveCli.Command {
+func New(cfg config.Config, store *store.Store, integrations []integration.Integration) *urfaveCli.Command {
 
 	app := app{
-		cfg:    cfg,
-		store:  store,
-		engine: engine,
+		cfg:          cfg,
+		store:        store,
+		integrations: integrations,
 	}
 
 	return &urfaveCli.Command{
@@ -44,6 +44,7 @@ func New(cfg config.Config, store *theme.Store, engine *engine.Engine) *urfaveCl
 			app.wallpaperCmd(),
 			app.refreshCmd(),
 			app.doctorCmd(),
+			app.installCmd(),
 		},
 		Before: func(ctx context.Context, c *urfaveCli.Command) (context.Context, error) {
 			level := slog.LevelInfo

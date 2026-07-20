@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/Nico-Mayer/themectl/internal/config"
+	"github.com/Nico-Mayer/themectl/internal/store"
 	"github.com/Nico-Mayer/themectl/internal/theme"
 	"github.com/Nico-Mayer/themectl/internal/wallpaper"
 	"github.com/charmbracelet/huh"
@@ -105,7 +106,7 @@ func (a app) setWallpaperCmd() *cli.Command {
 	}
 }
 
-func applyRandomWallpaper(cfg config.Config, store *theme.Store, manager wallpaper.Manager) error {
+func applyRandomWallpaper(cfg config.Config, store *store.Store, manager wallpaper.Manager) error {
 	resolved, err := resolveThemeOrCurrent(cfg, store, "")
 	if err != nil {
 		return err
@@ -157,9 +158,9 @@ func pickWallpaper(candidates []string) (string, error) {
 	return selected, nil
 }
 
-func resolveThemeOrCurrent(cfg config.Config, store *theme.Store, themeID string) (theme.Resolved, error) {
+func resolveThemeOrCurrent(cfg config.Config, st *store.Store, themeID string) (theme.Resolved, error) {
 	if themeID == "" {
-		current, err := theme.ReadCurrent(cfg.CurrentFile())
+		current, err := store.ReadCurrent(cfg.CurrentFile())
 		if err != nil {
 			return theme.Resolved{}, fmt.Errorf("read current theme: %w", err)
 		}
@@ -167,7 +168,7 @@ func resolveThemeOrCurrent(cfg config.Config, store *theme.Store, themeID string
 	}
 
 	slog.Debug("resolving theme", "theme", themeID)
-	resolved, err := store.Resolve(themeID)
+	resolved, err := st.Resolve(themeID)
 	if err != nil {
 		return theme.Resolved{}, fmt.Errorf("resolve theme %q: %w", themeID, err)
 	}

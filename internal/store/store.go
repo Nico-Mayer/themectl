@@ -1,4 +1,4 @@
-package theme
+package store
 
 import (
 	"cmp"
@@ -13,6 +13,7 @@ import (
 	"sync"
 
 	"github.com/BurntSushi/toml"
+	"github.com/Nico-Mayer/themectl/internal/theme"
 )
 
 var reservedNames = []string{
@@ -29,25 +30,25 @@ func NewStore(fsys fs.FS) *Store {
 	}
 }
 
-func (s *Store) Resolve(id string) (Resolved, error) {
+func (s *Store) Resolve(id string) (theme.Resolved, error) {
 	famName, variantName, found := strings.Cut(id, "/")
 	if !found {
-		return Resolved{}, fmt.Errorf("theme id %q: want \"family/variant\"", id)
+		return theme.Resolved{}, fmt.Errorf("theme id %q: want \"family/variant\"", id)
 	}
 
 	tf, err := s.themeFile(famName)
 	if err != nil {
-		return Resolved{}, err
+		return theme.Resolved{}, err
 	}
 
 	vs, ok := tf.Variants[variantName]
 	if !ok {
-		return Resolved{}, fmt.Errorf("theme %s: variant %q not declared in theme.toml", id, variantName)
+		return theme.Resolved{}, fmt.Errorf("theme %s: variant %q not declared in theme.toml", id, variantName)
 	}
 
-	return Resolve(
-		Family{Name: famName, Defaults: tf.Defaults},
-		Variant{Name: variantName, Spec: vs},
+	return theme.Resolve(
+		theme.Family{Name: famName, Defaults: tf.Defaults},
+		theme.Variant{Name: variantName, Spec: vs},
 	)
 }
 
@@ -70,15 +71,15 @@ func (s *Store) IDs() ([]string, error) {
 	return out, nil
 }
 
-func (s *Store) List(a Appearance) ([]Resolved, error) {
+func (s *Store) List(a theme.Appearance) ([]theme.Resolved, error) {
 	all, err := s.resolveAll()
 	if err != nil {
 		return nil, err
 	}
 
-	var out []Resolved
+	var out []theme.Resolved
 	for _, r := range all {
-		if r.Appearance == a || a == AnyAppearance {
+		if r.Appearance == a || a == theme.AnyAppearance {
 			out = append(out, r)
 		}
 	}
@@ -86,14 +87,14 @@ func (s *Store) List(a Appearance) ([]Resolved, error) {
 	return out, nil
 }
 
-func (s *Store) PickRandom(a Appearance) (Resolved, error) {
+func (s *Store) PickRandom(a theme.Appearance) (theme.Resolved, error) {
 	candidates, err := s.List(a)
 	if err != nil {
-		return Resolved{}, err
+		return theme.Resolved{}, err
 	}
 
 	if len(candidates) == 0 {
-		return Resolved{}, fmt.Errorf("no matching candidates found for appearance %v", a)
+		return theme.Resolved{}, fmt.Errorf("no matching candidates found for appearance %v", a)
 	}
 
 	return candidates[rand.IntN(len(candidates))], nil
@@ -108,7 +109,7 @@ func (s *Store) listVariants(family string) ([]string, error) {
 	return slices.Sorted(maps.Keys(tf.Variants)), nil
 }
 
-func (s *Store) resolveAll() ([]Resolved, error) {
+func (s *Store) resolveAll() ([]theme.Resolved, error) {
 	families, err := s.allFamilies()
 	if err != nil {
 		return nil, err
@@ -116,7 +117,7 @@ func (s *Store) resolveAll() ([]Resolved, error) {
 
 	var (
 		mu  sync.Mutex
-		out []Resolved
+		out []theme.Resolved
 		wg  sync.WaitGroup
 	)
 
@@ -130,24 +131,24 @@ func (s *Store) resolveAll() ([]Resolved, error) {
 	}
 	wg.Wait()
 
-	slices.SortFunc(out, func(a, b Resolved) int {
+	slices.SortFunc(out, func(a, b theme.Resolved) int {
 		return cmp.Compare(a.ID(), b.ID())
 	})
 	return out, nil
 }
 
-func (s *Store) resolveFamily(name string) []Resolved {
+func (s *Store) resolveFamily(name string) []theme.Resolved {
 	tf, err := s.themeFile(name)
 	if err != nil {
 		slog.Debug("skipping unresolvable family", "family", name, "err", err)
 		return nil
 	}
 
-	fam := Family{Name: name, Defaults: tf.Defaults}
-	var out []Resolved
+	fam := theme.Family{Name: name, Defaults: tf.Defaults}
+	var out []theme.Resolved
 
 	for _, v := range slices.Sorted(maps.Keys(tf.Variants)) {
-		res, err := Resolve(fam, Variant{Name: v, Spec: tf.Variants[v]})
+		res, err := theme.Resolve(fam, theme.Variant{Name: v, Spec: tf.Variants[v]})
 		if err != nil {
 			slog.Debug("skipping unresolvable theme", "theme", name+"/"+v, "err", err)
 			continue
@@ -174,10 +175,10 @@ func (s *Store) allFamilies() ([]string, error) {
 	return out, nil
 }
 
-func (s *Store) themeFile(family string) (ThemeFile, error) {
-	var tf ThemeFile
+func (s *Store) themeFile(family string) (theme.ThemeFile, error) {
+	var tf theme.ThemeFile
 	if err := s.decode(path.Join(family, "theme.toml"), &tf); err != nil {
-		return ThemeFile{}, err
+		return theme.ThemeFile{}, err
 	}
 	return tf, nil
 }

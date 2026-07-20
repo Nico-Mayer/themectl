@@ -1,4 +1,4 @@
-package theme
+package store
 
 import (
 	"errors"

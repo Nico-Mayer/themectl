@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/Nico-Mayer/themectl/internal/integration"
+	"github.com/Nico-Mayer/themectl/internal/store"
 	"github.com/Nico-Mayer/themectl/internal/theme"
 	"github.com/charmbracelet/huh"
 	"github.com/urfave/cli/v3"
@@ -80,17 +82,17 @@ func applyTheme(resolvedTheme theme.Resolved, app app) error {
 	if err := app.store.Materialize(resolvedTheme.ID(), app.cfg.CurrentDir()); err != nil {
 		return err
 	}
-	if err := app.engine.Apply(resolvedTheme); err != nil {
+	if err := integration.ApplyAll(app.integrations, resolvedTheme); err != nil {
 		return err
 	}
-	if err := theme.WriteCurrent(app.cfg.CurrentFile(), resolvedTheme.ID()); err != nil {
+	if err := store.WriteCurrent(app.cfg.CurrentFile(), resolvedTheme.ID()); err != nil {
 		return err
 	}
 	slog.Info("theme set", "theme", resolvedTheme.ID())
 	return nil
 }
 
-func pickTheme(store *theme.Store) (string, error) {
+func pickTheme(store *store.Store) (string, error) {
 
 	all, err := store.IDs()
 	if err != nil {
@@ -120,7 +122,7 @@ func pickTheme(store *theme.Store) (string, error) {
 
 	return selected, nil
 }
-func resolveThemeArg(arg string, store *theme.Store) (string, error) {
+func resolveThemeArg(arg string, store *store.Store) (string, error) {
 	if arg != "" {
 		return arg, nil
 	}
