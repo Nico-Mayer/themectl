@@ -80,7 +80,6 @@ target = "~/.dotfiles/nvim/plugin/99_theme.lua"
 
 ### Missing integrations
 
-- [ ] VSCode
 - [ ] Other terminal emulators _(low)_
 - [ ] Chromium verify feasibility, may need elevated privileges on macOS to set policies (Helium and other Chromium forks)
 
