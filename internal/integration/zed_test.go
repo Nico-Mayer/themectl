@@ -94,7 +94,7 @@ func TestZed_Apply(t *testing.T) {
 	if !strings.Contains(string(out), `"icon_theme": "Catppuccin Mocha"`) {
 		t.Errorf("icon_theme not rewritten: %q", out)
 	}
-	testutil.Diff(t, []ExtensionRef{{URL: "github.com/catppuccin/zed"}}, installer.refs)
+	testutil.Diff(t, []ExtensionRef{{URL: "https://github.com/catppuccin/zed"}}, installer.refs)
 }
 
 func TestZed_Apply_installsExtensionsInOrder(t *testing.T) {
@@ -104,13 +104,13 @@ func TestZed_Apply_installsExtensionsInOrder(t *testing.T) {
 	z := Zed{SettingsPath: settings, Installer: installer}
 	res := theme.Resolved{Zed: &theme.ZedSpec{
 		Theme:      "X",
-		Extensions: []string{"github.com/catppuccin/zed", "github.com/other/ext"},
+		Extensions: []string{"github.com/catppuccin/zed", "https://github.com/other/ext"},
 	}}
 
 	testutil.NoErr(t, z.Apply(res))
 	testutil.Diff(t, []ExtensionRef{
-		{URL: "github.com/catppuccin/zed"},
-		{URL: "github.com/other/ext"},
+		{URL: "https://github.com/catppuccin/zed"},
+		{URL: "https://github.com/other/ext"},
 	}, installer.refs)
 }
 

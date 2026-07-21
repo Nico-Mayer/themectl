@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/Nico-Mayer/themectl/internal/git"
 	"github.com/Nico-Mayer/themectl/internal/theme"
 )
 
@@ -35,6 +36,7 @@ func (z Zed) Apply(t theme.Resolved) error {
 
 	if z.Installer != nil {
 		for _, url := range spec.Extensions {
+			url = git.NormalizeURL(url)
 			if err := z.Installer.Ensure(ExtensionRef{URL: url}); err != nil {
 				return err
 			}

@@ -3,10 +3,11 @@ package store
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/Nico-Mayer/themectl/internal/git"
 )
 
 type UpdateStatus int
@@ -25,7 +26,7 @@ type UpdateResult struct {
 }
 
 func Update(themesDir string, confirm func(string) bool) ([]UpdateResult, error) {
-	if err := checkGitInstalled(); err != nil {
+	if err := git.Installed(); err != nil {
 		return nil, err
 	}
 
@@ -56,7 +57,7 @@ func Update(themesDir string, confirm func(string) bool) ([]UpdateResult, error)
 			if _, err := os.Stat(filepath.Join(dir, ".git")); err != nil {
 				return
 			}
-			out, err := gitOutput(dir, "status", "--porcelain")
+			out, err := git.Run(dir, "status", "--porcelain")
 			infos[i] = classified{isRepo: true, dirty: err == nil && out != ""}
 		})
 	}
@@ -78,7 +79,7 @@ func Update(themesDir string, confirm func(string) bool) ([]UpdateResult, error)
 	for _, i := range toPull {
 		wg.Go(func() {
 			name := names[i]
-			if out, err := gitOutput(filepath.Join(themesDir, name), "pull"); err != nil {
+			if out, err := git.Run(filepath.Join(themesDir, name), "pull"); err != nil {
 				results[i] = UpdateResult{Name: name, Status: UpdateFailed, Err: fmt.Errorf("git pull: %w (%s)", err, out)}
 				return
 			}
@@ -87,11 +88,4 @@ func Update(themesDir string, confirm func(string) bool) ([]UpdateResult, error)
 	}
 	wg.Wait()
 	return results, nil
-}
-
-func gitOutput(dir string, args ...string) (string, error) {
-	cmd := exec.Command("git", args...)
-	cmd.Dir = dir
-	out, err := cmd.CombinedOutput()
-	return strings.TrimSpace(string(out)), err
 }
