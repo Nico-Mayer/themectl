@@ -7,16 +7,16 @@ system appearance in a single, concurrent pass.
 
 ## Usage
 
-```sh
-themectl list                 # list all themes (ls)
-themectl install <git-url>    # install a theme from a git repo (--name, --force)
+```bash
+themectl list                        # list all themes (ls)
+themectl set <theme-name>            # apply a theme (use, apply)
+themectl set random                  # random theme  (--light / --dark to filter)
+themectl current                     # print active theme
+themectl wallpaper                   # pick from all available wallpapers for this theme
+themectl wallpaper --random          # reshuffle wallpaper for current theme
+themectl install <git-url>           # install a theme from a git repo (--name, --force)
 themectl uninstall <theme-family>    # uninstalls the selected theme family from
-themectl set catppuccin/mocha # apply a theme (use, apply)
-themectl set random           # random theme  (--light / --dark to filter)
-themectl current              # print active theme
-themectl wallpaper            # print current wallpaper
-themectl wallpaper --random   # reshuffle wallpaper for current theme
-themectl -v <cmd>             # verbose logs to stderr
+themectl update                      # updates all themes installed via git
 ```
 
 ## Configuration
@@ -73,7 +73,6 @@ target = "~/.dotfiles/nvim/plugin/99_theme.lua"
 
 ### Features
 
-- `update` command: updates all themes installed via git
 - `create` command: TUI form that scaffolds a new theme folder in themesDir()
 - `clean <theme>` command: looks at its outside deps like zed extensions and uninstalls them and remove .head files for a reinstall without guard
 - Allow theme specs to reference assets by URL instead of bundling them (link existing ports, no duplication). Needs network + caching for offline use.
