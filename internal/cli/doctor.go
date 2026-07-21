@@ -20,6 +20,7 @@ type doctorReport struct {
 	ConfigFile        string              `json:"config_file"`
 	ConfigFileExists  bool                `json:"config_file_exists"`
 	Root              string              `json:"root"`
+	Cache             string              `json:"cache"`
 	CurrentTheme      string              `json:"current_theme"`
 	CurrentThemeFound bool                `json:"current_theme_found"`
 	InstalledThemes   int                 `json:"installed_themes"`
@@ -57,6 +58,7 @@ func buildDoctorReport(cfg config.Config, st *store.Store) doctorReport {
 	r := doctorReport{
 		ConfigFile:   cfg.SettingsFile(),
 		Root:         cfg.Root,
+		Cache:        cfg.CacheDir(),
 		Integrations: integrationStatuses(cfg),
 		Unknown:      integration.Unknown(cfg),
 	}
@@ -153,6 +155,7 @@ func settingsRows(r doctorReport) []kvRow {
 	rows := []kvRow{
 		{"Config", configFile},
 		{"Root", r.Root},
+		{"Cache", r.Cache},
 	}
 	if !r.ConfigFileExists {
 		rows = append(rows, kvRow{"", ui.Muted.Render("create " + r.ConfigFile + " to customize")})

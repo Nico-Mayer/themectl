@@ -1,8 +1,6 @@
 package integration
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"log/slog"
 	"os"
@@ -10,6 +8,7 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
+	"github.com/Nico-Mayer/themectl/internal/cache"
 	"github.com/Nico-Mayer/themectl/internal/git"
 )
 
@@ -17,6 +16,7 @@ const installCheckTTL = 30 * 24 * time.Hour
 
 type gitInstaller struct {
 	extensionsDir string
+	cache         cache.Cache
 }
 
 func (g gitInstaller) Ensure(ref ExtensionRef) error {
@@ -24,8 +24,7 @@ func (g gitInstaller) Ensure(ref ExtensionRef) error {
 		return fmt.Errorf("ensure extensions dir: %w", err)
 	}
 
-	marker := g.markerPath(ref.URL)
-	if info, err := os.Stat(marker); err == nil && time.Since(info.ModTime()) < installCheckTTL {
+	if g.cache.Fresh(ref.URL, installCheckTTL) {
 		slog.Debug("zed extension recently checked, skipping", "url", ref.URL)
 		return nil
 	}
@@ -35,10 +34,10 @@ func (g gitInstaller) Ensure(ref ExtensionRef) error {
 	if err != nil {
 		return err
 	}
-	if prev, _ := os.ReadFile(marker); string(prev) == head {
+
+	if prev, ok := g.cache.Get(ref.URL); ok && prev == head {
 		slog.Debug("zed extension up to date", "url", ref.URL)
-		_ = os.Chtimes(marker, time.Now(), time.Now())
-		return nil
+		return g.cache.Touch(ref.URL)
 	}
 
 	tmp, err := os.MkdirTemp(g.extensionsDir, ".zed-ext-*")
@@ -65,12 +64,7 @@ func (g gitInstaller) Ensure(ref ExtensionRef) error {
 	}
 	slog.Info("zed extension installed", "extension", id, "url", ref.URL)
 
-	return os.WriteFile(marker, []byte(head), 0o644)
-}
-
-func (g gitInstaller) markerPath(url string) string {
-	sum := sha256.Sum256([]byte(url))
-	return filepath.Join(g.extensionsDir, ".head-"+hex.EncodeToString(sum[:8]))
+	return g.cache.Put(ref.URL, head)
 }
 
 func extensionID(path string) (string, error) {
