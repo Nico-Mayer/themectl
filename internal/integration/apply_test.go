@@ -8,13 +8,18 @@ import (
 )
 
 type fakeIntegration struct {
-	name    string
-	err     error
-	applied *bool
+	name     string
+	err      error
+	checkErr error
+	applied  *bool
 }
 
 func (f fakeIntegration) Name() string {
 	return f.name
+}
+
+func (f fakeIntegration) Check() error {
+	return f.checkErr
 }
 
 func (f fakeIntegration) Apply(t theme.Resolved) error {
@@ -22,15 +27,6 @@ func (f fakeIntegration) Apply(t theme.Resolved) error {
 		*f.applied = true
 	}
 	return f.err
-}
-
-type fakeCheckedIntegration struct {
-	fakeIntegration
-	checkErr error
-}
-
-func (f fakeCheckedIntegration) Check() error {
-	return f.checkErr
 }
 
 func TestEngine_ApplyAll_runsAllAndAggregatesErrors(t *testing.T) {
@@ -51,11 +47,10 @@ func TestEngine_ApplyAll_runsAllAndAggregatesErrors(t *testing.T) {
 }
 
 func TestEngine_Apply_skipsUnhealthyIntegrations(t *testing.T) {
-	var ranBroken, ranHealthy, ranUnchecked bool
+	var ranBroken, ranHealthy bool
 	integrations := []Integration{
-		fakeCheckedIntegration{fakeIntegration{name: "broken", applied: &ranBroken}, errors.New("config dir missing")},
-		fakeCheckedIntegration{fakeIntegration{name: "healthy", applied: &ranHealthy}, nil},
-		fakeIntegration{name: "unchecked", applied: &ranUnchecked},
+		fakeIntegration{name: "broken", applied: &ranBroken, checkErr: errors.New("config dir missing")},
+		fakeIntegration{name: "healthy", applied: &ranHealthy},
 	}
 
 	err := ApplyAll(integrations, theme.Resolved{Family: "f", Variant: "v"})
@@ -65,7 +60,7 @@ func TestEngine_Apply_skipsUnhealthyIntegrations(t *testing.T) {
 	if ranBroken {
 		t.Error("unhealthy integration must not be applied")
 	}
-	if !ranHealthy || !ranUnchecked {
-		t.Errorf("healthy integrations must still run (healthy=%v unchecked=%v)", ranHealthy, ranUnchecked)
+	if !ranHealthy {
+		t.Error("healthy integration must still run")
 	}
 }

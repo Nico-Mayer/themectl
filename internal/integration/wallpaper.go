@@ -15,6 +15,10 @@ func (Wallpaper) Name() string {
 	return "wallpaper"
 }
 
+func (w Wallpaper) Check() error {
+	return checkFileExists("themes dir", w.ThemesDir)
+}
+
 func (w Wallpaper) Apply(t theme.Resolved) error {
 	manager := wallpaper.NewManager(w.ThemesDir, w.SharedWallpapersDir)
 	return manager.ApplyRandom(t)

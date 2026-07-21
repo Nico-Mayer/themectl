@@ -15,11 +15,9 @@ func ApplyAll(integrations []Integration, t theme.Resolved) error {
 	var wg sync.WaitGroup
 	for i, in := range integrations {
 		wg.Go(func() {
-			if hc, ok := in.(HealthChecker); ok {
-				if err := hc.Check(); err != nil {
-					warnErrors[i] = err
-					return
-				}
+			if err := in.Check(); err != nil {
+				warnErrors[i] = err
+				return
 			}
 			slog.Debug("applying integration", "integration", in.Name())
 			if err := in.Apply(t); err != nil {

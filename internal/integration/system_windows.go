@@ -17,6 +17,10 @@ const (
 	wmThemeChanged  = 0x031A
 )
 
+func checkSystemAppearance() error {
+	return nil
+}
+
 func setSystemAppearance(appearance theme.Appearance) error {
 	var value uint32
 	switch appearance {

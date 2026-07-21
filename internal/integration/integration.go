@@ -11,11 +11,8 @@ import (
 
 type Integration interface {
 	Name() string
-	Apply(t theme.Resolved) error
-}
-
-type HealthChecker interface {
 	Check() error
+	Apply(t theme.Resolved) error
 }
 
 func checkConfigDir(name, path string) error {

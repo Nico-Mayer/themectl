@@ -11,6 +11,10 @@ func (SystemAppearance) Name() string {
 	return "system-appearance"
 }
 
+func (SystemAppearance) Check() error {
+	return checkSystemAppearance()
+}
+
 func (SystemAppearance) Apply(t theme.Resolved) error {
 	return setSystemAppearance(t.Appearance)
 }

@@ -9,6 +9,10 @@ import (
 	"github.com/Nico-Mayer/themectl/internal/theme"
 )
 
-func setSystemAppearance(theme.Appearance) error {
+func checkSystemAppearance() error {
 	return fmt.Errorf("system appearance: unsupported os: %s", runtime.GOOS)
+}
+
+func setSystemAppearance(theme.Appearance) error {
+	return checkSystemAppearance()
 }

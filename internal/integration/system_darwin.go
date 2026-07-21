@@ -10,6 +10,13 @@ import (
 	"github.com/Nico-Mayer/themectl/internal/theme"
 )
 
+func checkSystemAppearance() error {
+	if _, err := exec.LookPath("osascript"); err != nil {
+		return fmt.Errorf("osascript not found: %w", err)
+	}
+	return nil
+}
+
 func setSystemAppearance(appearance theme.Appearance) error {
 	var script string
 	switch appearance {
