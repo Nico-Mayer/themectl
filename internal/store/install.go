@@ -4,13 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
 
 	"github.com/BurntSushi/toml"
+	"github.com/Nico-Mayer/themectl/internal/git"
 	"github.com/Nico-Mayer/themectl/internal/theme"
 )
 
@@ -25,7 +25,7 @@ func Install(themesDir, url, name string, force bool) (string, error) {
 		return "", errors.New("name not allowed")
 	}
 
-	if err := checkGitInstalled(); err != nil {
+	if err := git.Installed(); err != nil {
 		return "", err
 	}
 
@@ -40,13 +40,13 @@ func Install(themesDir, url, name string, force bool) (string, error) {
 	defer os.RemoveAll(temp)
 
 	dst := filepath.Join(temp, "repo")
-	if out, err := exec.Command("git", "clone", "--depth", "1", url, dst).CombinedOutput(); err != nil {
-		return "", fmt.Errorf("git clone %s: %w (%s)", url, err, strings.TrimSpace(string(out)))
+	if err := git.CloneShallow(url, dst); err != nil {
+		return "", err
 	}
 
 	data, err := os.ReadFile(filepath.Join(dst, "theme.toml"))
 	if err != nil {
-		return "", fmt.Errorf("not a theme repo (noreadable theme.toml): %w", err)
+		return "", fmt.Errorf("not a theme repo (not readable theme.toml): %w", err)
 	}
 
 	var tf theme.ThemeFile
@@ -101,11 +101,4 @@ func deriveFamilyName(url string) string {
 	base := path.Base(strings.TrimRight(url, "/"))
 	base = strings.TrimSuffix(base, ".git")
 	return strings.ToLower(base)
-}
-
-func checkGitInstalled() error {
-	if _, err := exec.LookPath("git"); err != nil {
-		return fmt.Errorf("themectl requires the git CLI: %w", err)
-	}
-	return nil
 }

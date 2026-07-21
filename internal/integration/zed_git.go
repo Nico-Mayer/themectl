@@ -6,12 +6,11 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/BurntSushi/toml"
+	"github.com/Nico-Mayer/themectl/internal/git"
 )
 
 const installCheckTTL = 30 * 24 * time.Hour
@@ -32,7 +31,7 @@ func (g gitInstaller) Ensure(ref ExtensionRef) error {
 	}
 
 	slog.Debug("checking zed extension for updates", "url", ref.URL)
-	head, err := remoteHead(ref.URL)
+	head, err := git.RemoteHead(ref.URL)
 	if err != nil {
 		return err
 	}
@@ -48,7 +47,7 @@ func (g gitInstaller) Ensure(ref ExtensionRef) error {
 	}
 	defer os.RemoveAll(tmp)
 
-	if err := sparseClone(ref.URL, tmp); err != nil {
+	if err := git.SparseClone(ref.URL, tmp, "themes", "icon_themes", "icons"); err != nil {
 		return err
 	}
 
@@ -67,33 +66,6 @@ func (g gitInstaller) Ensure(ref ExtensionRef) error {
 	slog.Info("zed extension installed", "extension", id, "url", ref.URL)
 
 	return os.WriteFile(marker, []byte(head), 0o644)
-}
-
-func remoteHead(url string) (string, error) {
-	url = strings.TrimPrefix(url, "https://")
-	out, err := exec.Command("git", "ls-remote", "https://"+url, "HEAD").Output()
-	if err != nil {
-		return "", fmt.Errorf("ls-remote %s: %w", url, err)
-	}
-	fields := strings.Fields(string(out))
-	if len(fields) == 0 {
-		return "", fmt.Errorf("ls-remote %s: empty HEAD", url)
-	}
-	return fields[0], nil
-}
-
-func sparseClone(url, dst string) error {
-	steps := [][]string{
-		{"clone", "--depth", "1", "--filter=blob:none", "--no-checkout", "https://" + url, dst},
-		{"-C", dst, "sparse-checkout", "set", "themes", "icon_themes", "icons"},
-		{"-C", dst, "checkout"},
-	}
-	for _, args := range steps {
-		if out, err := exec.Command("git", args...).CombinedOutput(); err != nil {
-			return fmt.Errorf("git %s: %w (%s)", strings.Join(args, " "), err, strings.TrimSpace(string(out)))
-		}
-	}
-	return nil
 }
 
 func (g gitInstaller) markerPath(url string) string {
