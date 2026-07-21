@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"slices"
 
+	"github.com/Nico-Mayer/themectl/internal/cache"
 	"github.com/Nico-Mayer/themectl/internal/config"
 )
 
@@ -60,6 +61,7 @@ var available = map[string]func(cfg config.Config) Integration{
 		}
 		z.Installer = gitInstaller{
 			extensionsDir: filepath.Join(usrConfigDir, "Zed", "extensions", "installed"),
+			cache:         cache.New(filepath.Join(cfg.CacheDir(), "zed")),
 		}
 		return z
 	},
