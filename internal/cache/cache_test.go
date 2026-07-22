@@ -45,6 +45,17 @@ func TestTouch(t *testing.T) {
 	testutil.Equal(t, got, "v")
 }
 
+func TestClear(t *testing.T) {
+	dir := t.TempDir()
+	c := New(dir)
+	testutil.NoErr(t, c.Put("k", "v"))
+	testutil.NoErr(t, c.Clear())
+
+	got, ok := c.Get("k")
+	testutil.Equal(t, got, "")
+	testutil.Equal(t, ok, false)
+}
+
 func backdate(t *testing.T, dir string, age time.Duration) {
 	t.Helper()
 	files, err := filepath.Glob(filepath.Join(dir, "*"))

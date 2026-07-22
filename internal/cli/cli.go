@@ -49,6 +49,7 @@ func New(cfg config.Config, store *store.Store, integrations []integration.Integ
 			app.installCmd(),
 			app.uninstallCmd(),
 			app.updateCmd(),
+			app.cacheCmd(),
 		},
 		Before: func(ctx context.Context, c *urfaveCli.Command) (context.Context, error) {
 			level := slog.LevelInfo

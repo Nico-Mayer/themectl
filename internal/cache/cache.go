@@ -50,6 +50,10 @@ func (c Cache) Touch(key string) error {
 	return os.Chtimes(c.path(key), now, now)
 }
 
+func (c Cache) Clear() error {
+	return os.RemoveAll(c.dir)
+}
+
 func (c Cache) path(key string) string {
 	sum := sha256.Sum256([]byte(key))
 	return filepath.Join(c.dir, hex.EncodeToString(sum[:8]))
