@@ -84,11 +84,13 @@ func applyTheme(resolvedTheme theme.Resolved, app app) error {
 		if err := app.store.Materialize(resolvedTheme.ID(), app.cfg.CurrentDir()); err != nil {
 			return err
 		}
-		if err := integration.ApplyAll(app.integrations, resolvedTheme); err != nil {
+		if err := store.WriteCurrent(app.cfg.CurrentFile(), resolvedTheme.ID()); err != nil {
 			return err
 		}
-		return store.WriteCurrent(app.cfg.CurrentFile(), resolvedTheme.ID())
+
+		return integration.ApplyAll(app.integrations, resolvedTheme)
 	})
+
 	if err != nil {
 		return err
 	}

@@ -29,7 +29,7 @@ func (Zed) Name() string {
 func (z Zed) Apply(t theme.Resolved) error {
 	spec := t.Zed
 	if spec == nil || spec.Theme == "" {
-		return fmt.Errorf("theme %s has no zed override", t.ID())
+		return fmt.Errorf("no zed override in theme %s: %w", t.ID(), ErrUnsupported)
 	}
 
 	if z.Installer != nil {

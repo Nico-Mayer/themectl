@@ -9,6 +9,8 @@ import (
 	"github.com/Nico-Mayer/themectl/internal/theme"
 )
 
+var ErrUnsupported = errors.New("theme does not support this integration")
+
 type Integration interface {
 	Name() string
 	Check() error

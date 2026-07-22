@@ -28,7 +28,7 @@ func (Helix) Name() string {
 
 func (h Helix) Apply(t theme.Resolved) error {
 	if t.Helix == nil || t.Helix.Theme == "" {
-		return fmt.Errorf("theme %s has no helix override", t.ID())
+		return fmt.Errorf("no helix override in theme %s: %w", t.ID(), ErrUnsupported)
 	}
 	name := t.Helix.Theme
 

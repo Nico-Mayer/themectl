@@ -23,7 +23,7 @@ func (v VSCode) Name() string { return "vscode" }
 func (v VSCode) Apply(t theme.Resolved) error {
 	spec := t.VSCode
 	if spec == nil || spec.Theme == "" {
-		return fmt.Errorf("theme %s has no vscode override", t.ID())
+		return fmt.Errorf("no vscode override in theme %s: %w", t.ID(), ErrUnsupported)
 	}
 
 	if v.Installer != nil {

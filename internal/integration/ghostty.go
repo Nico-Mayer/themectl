@@ -31,7 +31,7 @@ func (Ghostty) Name() string {
 
 func (g Ghostty) Apply(t theme.Resolved) error {
 	if t.Ghostty == nil || t.Ghostty.Theme == "" {
-		return fmt.Errorf("theme %s has no ghostty override", t.ID())
+		return fmt.Errorf("no ghostty override in theme %s: %w", t.ID(), ErrUnsupported)
 	}
 	name := t.Ghostty.Theme
 
