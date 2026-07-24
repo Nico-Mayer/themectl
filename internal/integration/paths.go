@@ -7,51 +7,40 @@ import (
 	"runtime"
 )
 
-type appPath struct {
-	base    func() string
-	rel     []string
-	darwin  []string
-	windows []string
-}
-
-func (p appPath) dir() string {
-	rel := p.rel
-	switch runtime.GOOS {
-	case "darwin":
-		if p.darwin != nil {
-			rel = p.darwin
-		}
-	case "windows":
-		if p.windows != nil {
-			rel = p.windows
-		}
-	}
-	base := xdgConfigDir
-	if p.base != nil {
-		base = p.base
-	}
-	return filepath.Join(append([]string{base()}, rel...)...)
-}
-
-var appDirs = map[string]appPath{
-	"ghostty": {rel: []string{"ghostty"}},
-	"helix":   {rel: []string{"helix"}},
-	"eza":     {base: ezaConfigDir, rel: []string{"eza"}},
-	"nvim":    {base: localConfigDir, rel: []string{"nvim"}},
-	"yazi":    {rel: []string{"yazi"}, windows: []string{"yazi", "config"}},
-	"zed":     {rel: []string{"zed"}, windows: []string{"Zed"}},
-	"vscode":  {base: userConfigDir, rel: []string{"Code", "User"}},
-}
-
 func appConfigDir(app string) string {
-	return appDirs[app].dir()
+	switch app {
+	case "eza":
+		if dir := os.Getenv("EZA_CONFIG_DIR"); dir != "" {
+			return dir
+		}
+		return filepath.Join(configDir(), "eza")
+	case "nvim":
+		return filepath.Join(localConfigDir(), "nvim")
+	case "vscode":
+		return filepath.Join(userConfigDir(), "Code", "User")
+	case "yazi":
+		if runtime.GOOS == "windows" {
+			return filepath.Join(configDir(), "yazi", "config")
+		}
+		return filepath.Join(configDir(), "yazi")
+	case "zed":
+		if runtime.GOOS == "windows" {
+			return filepath.Join(configDir(), "Zed")
+		}
+		return filepath.Join(configDir(), "zed")
+	default:
+		return filepath.Join(configDir(), app)
+	}
 }
 
+// appConfigFile returns the path to a file inside an app's config directory.
 func appConfigFile(app string, elems ...string) string {
 	return filepath.Join(append([]string{appConfigDir(app)}, elems...)...)
 }
 
-func xdgConfigDir() string {
+// configDir returns the user's config root: $XDG_CONFIG_HOME or ~/.config on
+// Unix, the platform config dir on Windows.
+func configDir() string {
 	if runtime.GOOS == "windows" {
 		return userConfigDir()
 	}
@@ -61,36 +50,28 @@ func xdgConfigDir() string {
 	return filepath.Join(homeDir(), ".config")
 }
 
+// localConfigDir returns %LOCALAPPDATA% on Windows and configDir elsewhere.
 func localConfigDir() string {
 	if runtime.GOOS == "windows" {
 		if dir := os.Getenv("LOCALAPPDATA"); dir != "" {
 			return dir
 		}
 	}
-	return xdgConfigDir()
+	return configDir()
 }
 
 func userConfigDir() string {
-	confDir, err := os.UserConfigDir()
+	dir, err := os.UserConfigDir()
 	if err != nil {
-		slog.Warn("user config home not set")
+		slog.Warn("user config dir not found", "error", err)
 	}
-
-	return confDir
+	return dir
 }
 
 func homeDir() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		slog.Warn("user home not set")
+		slog.Warn("user home dir not found", "error", err)
 	}
-
 	return home
-}
-
-func ezaConfigDir() string {
-	if dir := os.Getenv("EZA_CONFIG_DIR"); dir != "" {
-		return dir
-	}
-	return filepath.Join(homeDir(), ".config")
 }
