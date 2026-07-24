@@ -2,7 +2,6 @@ package integration
 
 import (
 	"maps"
-	"os"
 	"path/filepath"
 	"slices"
 
@@ -17,24 +16,24 @@ var available = map[string]func(cfg config.Config) Integration{
 		return SymlinkIntegration{
 			IntegrationName: "nvim",
 			SourceFile:      filepath.Join(cfg.CurrentDir(), theme.NvimAssetName),
-			Target:          cfg.Settings.Nvim.Path(filepath.Join(homeConfig(), "nvim", "plugin", "99_theme.lua")),
-			AppConfigDir:    cfg.Settings.Nvim.Dir(filepath.Join(homeConfig(), "nvim")),
+			Target:          cfg.Settings.Nvim.Path(appConfigFile("nvim", "plugins", "99_theme.lua")),
+			AppConfigDir:    cfg.Settings.Nvim.Dir(appConfigDir("nvim")),
 		}
 	},
 	"eza": func(cfg config.Config) Integration {
 		return SymlinkIntegration{
 			IntegrationName: "eza",
 			SourceFile:      filepath.Join(cfg.CurrentDir(), theme.EzaAssetName),
-			Target:          cfg.Settings.Eza.Path(filepath.Join(homeConfig(), "eza", "theme.yml")),
-			AppConfigDir:    cfg.Settings.Eza.Dir(filepath.Join(homeConfig(), "eza")),
+			Target:          cfg.Settings.Eza.Path(appConfigFile("eza", "theme.yml")),
+			AppConfigDir:    cfg.Settings.Eza.Dir(appConfigDir("eza")),
 		}
 	},
 	"yazi": func(cfg config.Config) Integration {
 		return SymlinkIntegration{
 			IntegrationName: "yazi",
 			SourceFile:      filepath.Join(cfg.CurrentDir(), theme.YaziAssetName),
-			Target:          cfg.Settings.Yazi.Path(filepath.Join(homeConfig(), "yazi", "flavors", "themectl.yazi", "flavor.toml")),
-			AppConfigDir:    cfg.Settings.Yazi.Dir(filepath.Join(homeConfig(), "yazi")),
+			Target:          cfg.Settings.Yazi.Path(appConfigFile("yazi", "flavors", "themectl.yazi", "flavor.toml")),
+			AppConfigDir:    cfg.Settings.Yazi.Dir(appConfigDir("yazi")),
 		}
 	},
 	"system-appearance": newSystemAppearance,
@@ -67,13 +66,4 @@ func Unknown(cfg config.Config) []string {
 		}
 	}
 	return out
-}
-
-func defaultConfigFile(app, file string) string {
-	return filepath.Join(homeConfig(), app, file)
-}
-
-func homeConfig() string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".config")
 }

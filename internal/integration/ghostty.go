@@ -62,7 +62,7 @@ func (g Ghostty) Check() error {
 }
 
 func newGhostty(cfg config.Config) Integration {
-	return Ghostty{ConfigPath: cfg.Settings.Ghostty.Path(defaultConfigFile("ghostty", "config.ghostty"))}
+	return Ghostty{ConfigPath: cfg.Settings.Ghostty.Path(appConfigFile("ghostty", "config.ghostty"))}
 }
 
 func reloadGhostty() error {

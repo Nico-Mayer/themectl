@@ -55,5 +55,5 @@ func (h Helix) Check() error {
 }
 
 func newHelix(cfg config.Config) Integration {
-	return Helix{ConfigPath: cfg.Settings.Helix.Path(defaultConfigFile("helix", "config.toml"))}
+	return Helix{ConfigPath: cfg.Settings.Helix.Path(appConfigFile("helix", "config.toml"))}
 }

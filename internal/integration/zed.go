@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
-	"runtime"
 
 	"github.com/Nico-Mayer/themectl/internal/cache"
 	"github.com/Nico-Mayer/themectl/internal/config"
@@ -74,7 +73,7 @@ func (z Zed) Check() error {
 
 func newZed(cfg config.Config) Integration {
 	z := Zed{
-		SettingsPath: cfg.Settings.Zed.Path(defaultZedSettingsFile()),
+		SettingsPath: cfg.Settings.Zed.Path(appConfigFile("zed", "settings.json")),
 	}
 
 	usrConfigDir, err := os.UserConfigDir()
@@ -87,13 +86,4 @@ func newZed(cfg config.Config) Integration {
 		cache:         cache.New(filepath.Join(cfg.CacheDir(), "zed")),
 	}
 	return z
-}
-
-func defaultZedSettingsFile() string {
-	if runtime.GOOS == "windows" {
-		if dir, err := os.UserConfigDir(); err == nil {
-			return filepath.Join(dir, "zed", "settings.json")
-		}
-	}
-	return defaultConfigFile("zed", "settings.json")
 }

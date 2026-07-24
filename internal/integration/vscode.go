@@ -65,10 +65,10 @@ func (v VSCode) Check() error {
 
 func newVSCode(cfg config.Config) Integration {
 	v := VSCode{
-		SettingsPath: cfg.Settings.VSCode.Path(defaultVSCodeSettingsFile()),
+		SettingsPath: cfg.Settings.VSCode.Path(appConfigFile("vscode", "settings.json")),
 	}
 	if _, err := exec.LookPath("code"); err != nil {
-		slog.Warn("vscode extension install disabled, code CLI not found", "err", err)
+		slog.Debug("vscode extension install disabled, code CLI not found", "err", err)
 		return v
 	}
 
@@ -83,13 +83,4 @@ func newVSCode(cfg config.Config) Integration {
 		},
 	}
 	return v
-}
-
-func defaultVSCodeSettingsFile() string {
-	dir, err := os.UserConfigDir()
-	if err != nil {
-		slog.Warn("cant resolve user config dir", "err", err)
-		return ""
-	}
-	return filepath.Join(dir, "Code", "User", "settings.json")
 }
