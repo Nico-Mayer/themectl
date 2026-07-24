@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"log/slog"
 	"os"
 	"path/filepath"
 
@@ -50,12 +51,15 @@ func (r Rio) Supports(t theme.Resolved) bool {
 }
 
 func (r Rio) Reset() error {
+	slog.Debug("resetting rio theme", "config", r.ConfigFile, "source", r.SourceFile)
 	data, err := os.ReadFile(r.ConfigFile)
 	if err != nil {
+		slog.Debug("failed to read rio config", "err", err)
 		return err
 	}
 	updated, err := setTOMLString(string(data), "theme", "")
 	if err != nil {
+		slog.Debug("failed to set theme", "err", err)
 		return err
 	}
 	return os.WriteFile(r.ConfigFile, []byte(updated), 0o644)
