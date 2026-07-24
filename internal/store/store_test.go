@@ -47,7 +47,7 @@ theme = "Catppuccin Latte"
 }
 
 func TestStore_Resolve(t *testing.T) {
-	s := NewStore(testFS())
+	s := NewStore(testFS(), nil)
 
 	latte, err := s.Resolve("catppuccin/latte")
 	testutil.NoErr(t, err)
@@ -61,7 +61,7 @@ func TestStore_Resolve(t *testing.T) {
 }
 
 func TestStore_Resolve_inheritsAppearanceFromFamily(t *testing.T) {
-	s := NewStore(testFS())
+	s := NewStore(testFS(), nil)
 
 	mocha, err := s.Resolve("catppuccin/mocha")
 	testutil.NoErr(t, err)
@@ -73,21 +73,21 @@ func TestStore_Resolve_inheritsAppearanceFromFamily(t *testing.T) {
 }
 
 func TestStore_Resolve_badID(t *testing.T) {
-	s := NewStore(testFS())
+	s := NewStore(testFS(), nil)
 	if _, err := s.Resolve("nofamilyslash"); err == nil {
 		t.Error("expected error for id without a slash")
 	}
 }
 
 func TestStore_List(t *testing.T) {
-	s := NewStore(testFS())
+	s := NewStore(testFS(), nil)
 	got, err := s.listVariants("catppuccin")
 	testutil.NoErr(t, err)
 	testutil.Diff(t, []string{"frappe", "latte", "mocha"}, got)
 }
 
 func TestStore_ListAllByAppearance(t *testing.T) {
-	s := NewStore(testFS())
+	s := NewStore(testFS(), nil)
 	mocha, err := s.Resolve("catppuccin/mocha")
 	testutil.NoErr(t, err)
 	frappe, err := s.Resolve("catppuccin/frappe")
@@ -112,7 +112,7 @@ func TestStore_ListAllByAppearance(t *testing.T) {
 }
 
 func TestStore_PickRandom(t *testing.T) {
-	s := NewStore(testFS())
+	s := NewStore(testFS(), nil)
 
 	t.Run("dark picks a dark theme", func(t *testing.T) {
 		got, err := s.PickRandom(theme.Dark)
@@ -140,7 +140,7 @@ func TestStore_PickRandom(t *testing.T) {
 }
 
 func TestStore_Resolve_variantInheritsIntegrationFields(t *testing.T) {
-	s := NewStore(testFS())
+	s := NewStore(testFS(), nil)
 
 	latte, err := s.Resolve("catppuccin/latte")
 	testutil.NoErr(t, err)
@@ -150,7 +150,7 @@ func TestStore_Resolve_variantInheritsIntegrationFields(t *testing.T) {
 }
 
 func TestStore_Resolve_variantWithoutDirectory(t *testing.T) {
-	s := NewStore(testFS())
+	s := NewStore(testFS(), nil)
 	got, err := s.Resolve("catppuccin/frappe")
 	testutil.NoErr(t, err)
 	testutil.Equal(t, got.ID(), "catppuccin/frappe")
@@ -168,7 +168,7 @@ func benchFS(n int) fstest.MapFS {
 func BenchmarkStore_allFamilies(b *testing.B) {
 	for _, n := range []int{10, 100, 1000} {
 		b.Run(fmt.Sprintf("families=%d", n), func(b *testing.B) {
-			s := NewStore(benchFS(n))
+			s := NewStore(benchFS(n), nil)
 			b.ReportAllocs()
 			for b.Loop() {
 				if _, err := s.allFamilies(); err != nil {

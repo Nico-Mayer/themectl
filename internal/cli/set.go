@@ -41,7 +41,7 @@ func (a app) setCmd() *cli.Command {
 			if err != nil {
 				return err
 			}
-			return applyTheme(res, a)
+			return applyTheme(ctx, res, a)
 		},
 		ShellComplete: func(ctx context.Context, c *cli.Command) {
 			if c.Args().Len() > 0 {
@@ -73,15 +73,15 @@ func (a app) setRandom() *cli.Command {
 			if err != nil {
 				return err
 			}
-			return applyTheme(resolved, a)
+			return applyTheme(ctx, resolved, a)
 		},
 	}
 }
 
-func applyTheme(resolvedTheme theme.Resolved, app app) error {
+func applyTheme(ctx context.Context, resolvedTheme theme.Resolved, app app) error {
 	slog.Debug("materializing theme", "theme", resolvedTheme.ID(), "dir", app.cfg.CurrentDir())
 	err := ui.Spin("Applying theme", func() error {
-		if err := app.store.Materialize(resolvedTheme.ID(), app.cfg.CurrentDir()); err != nil {
+		if err := app.store.Materialize(ctx, resolvedTheme.ID(), app.cfg.CurrentDir()); err != nil {
 			return err
 		}
 		if err := store.WriteCurrent(app.cfg.CurrentFile(), resolvedTheme.ID()); err != nil {

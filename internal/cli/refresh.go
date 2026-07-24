@@ -22,7 +22,7 @@ func (a app) refreshCmd() *cli.Command {
 			if err != nil {
 				return err
 			}
-			return applyTheme(res, a)
+			return applyTheme(ctx, res, a)
 		},
 	}
 }

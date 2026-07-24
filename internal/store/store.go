@@ -2,6 +2,7 @@ package store
 
 import (
 	"cmp"
+	"context"
 	"fmt"
 	"io/fs"
 	"log/slog"
@@ -20,13 +21,19 @@ var reservedNames = []string{
 	"theme.toml",
 }
 
-type Store struct {
-	fsys fs.FS
+type Fetcher interface {
+	Fetch(ctx context.Context, rawURL string) ([]byte, error)
 }
 
-func NewStore(fsys fs.FS) *Store {
+type Store struct {
+	fsys    fs.FS
+	fetcher Fetcher
+}
+
+func NewStore(fsys fs.FS, fetcher Fetcher) *Store {
 	return &Store{
-		fsys: fsys,
+		fsys:    fsys,
+		fetcher: fetcher,
 	}
 }
 
