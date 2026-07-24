@@ -3,6 +3,9 @@
 goreleaser = "latest"
 svu = "latest"
 
+[shell_alias]
+mr = "mise run"
+
 [tasks."."]
 description = "Runs the app"
 run = "go run ./cmd/themectl"
