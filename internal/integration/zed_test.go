@@ -31,7 +31,7 @@ func TestZed_Apply(t *testing.T) {
 	settings := writeZedSettings(t, `{"theme": "old", "icon_theme": "old-icons"}`)
 
 	installer := &fakeInstaller{}
-	z := Zed{SettingsPath: settings, Installer: installer}
+	z := Zed{ConfigFile: settings, Installer: installer}
 	res := theme.Resolved{
 		Family:  "catppuccin",
 		Variant: "mocha",
@@ -58,7 +58,7 @@ func TestZed_Apply_installsExtensionsInOrder(t *testing.T) {
 	settings := writeZedSettings(t, `{"theme": "old"}`)
 
 	installer := &fakeInstaller{}
-	z := Zed{SettingsPath: settings, Installer: installer}
+	z := Zed{ConfigFile: settings, Installer: installer}
 	res := theme.Resolved{Zed: &theme.ZedSpec{
 		Theme:      "X",
 		Extensions: []string{"github.com/catppuccin/zed", "https://github.com/other/ext"},
@@ -75,7 +75,7 @@ func TestZed_Apply_noExtensionsSkipsInstaller(t *testing.T) {
 	settings := writeZedSettings(t, `{"theme": "old"}`)
 
 	installer := &fakeInstaller{}
-	z := Zed{SettingsPath: settings, Installer: installer}
+	z := Zed{ConfigFile: settings, Installer: installer}
 
 	testutil.NoErr(t, z.Apply(theme.Resolved{Zed: &theme.ZedSpec{Theme: "X"}}))
 	testutil.Equal(t, len(installer.refs), 0)
@@ -84,7 +84,7 @@ func TestZed_Apply_noExtensionsSkipsInstaller(t *testing.T) {
 func TestZed_Apply_nilInstaller(t *testing.T) {
 	settings := writeZedSettings(t, `{"theme": "old"}`)
 
-	z := Zed{SettingsPath: settings}
+	z := Zed{ConfigFile: settings}
 	res := theme.Resolved{Zed: &theme.ZedSpec{
 		Theme:      "X",
 		Extensions: []string{"github.com/catppuccin/zed"},
@@ -101,7 +101,7 @@ func TestZed_Apply_nilInstaller(t *testing.T) {
 func TestZed_Apply_addsMissingIconThemeKey(t *testing.T) {
 	settings := writeZedSettings(t, `{"theme": "old"}`)
 
-	z := Zed{SettingsPath: settings}
+	z := Zed{ConfigFile: settings}
 	res := theme.Resolved{Zed: &theme.ZedSpec{Theme: "X", IconTheme: "X Icons"}}
 
 	testutil.NoErr(t, z.Apply(res))
@@ -113,7 +113,7 @@ func TestZed_Apply_addsMissingIconThemeKey(t *testing.T) {
 }
 
 func TestZed_Supports_requiresOverride(t *testing.T) {
-	z := Zed{SettingsPath: "unused"}
+	z := Zed{ConfigFile: "unused"}
 	if z.Supports(theme.Resolved{}) {
 		t.Error("theme without zed override must not be supported")
 	}
@@ -126,7 +126,7 @@ func TestZed_Apply_installerErrorAborts(t *testing.T) {
 	settings := writeZedSettings(t, `{"theme": "old"}`)
 
 	installer := &fakeInstaller{err: os.ErrPermission}
-	z := Zed{SettingsPath: settings, Installer: installer}
+	z := Zed{ConfigFile: settings, Installer: installer}
 	res := theme.Resolved{Zed: &theme.ZedSpec{
 		Theme:      "X",
 		Extensions: []string{"github.com/catppuccin/zed"},

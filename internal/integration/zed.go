@@ -13,8 +13,8 @@ import (
 )
 
 type Zed struct {
-	SettingsPath string
-	Installer    ExtensionInstaller
+	ConfigFile string
+	Installer  ExtensionInstaller
 }
 
 type ExtensionInstaller interface {
@@ -41,7 +41,7 @@ func (z Zed) Apply(t theme.Resolved) error {
 		}
 	}
 
-	data, err := os.ReadFile(z.SettingsPath)
+	data, err := os.ReadFile(z.ConfigFile)
 	if err != nil {
 		return fmt.Errorf("read zed settings: %w", err)
 	}
@@ -60,7 +60,7 @@ func (z Zed) Apply(t theme.Resolved) error {
 		return err
 	}
 
-	if err := os.WriteFile(z.SettingsPath, []byte(updated), 0o644); err != nil {
+	if err := os.WriteFile(z.ConfigFile, []byte(updated), 0o644); err != nil {
 		return fmt.Errorf("write zed settings: %w", err)
 	}
 
@@ -68,12 +68,12 @@ func (z Zed) Apply(t theme.Resolved) error {
 }
 
 func (z Zed) Check() error {
-	return checkConfigDir(z.Name(), z.SettingsPath)
+	return checkConfigDir(z.Name(), filepath.Dir(z.ConfigFile))
 }
 
 func newZed(cfg config.Config) Integration {
 	z := Zed{
-		SettingsPath: cfg.Settings.Zed.Path(appConfigFile("zed", "settings.json")),
+		ConfigFile: cfg.Settings.Zed.ConfigFileOr(appConfigFile("zed", "settings.json")),
 	}
 
 	usrConfigDir, err := os.UserConfigDir()

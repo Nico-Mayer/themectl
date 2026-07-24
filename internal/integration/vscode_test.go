@@ -31,7 +31,7 @@ func TestVSCode_Apply(t *testing.T) {
 	settings := writeVSCodeSettings(t, `{"workbench.colorTheme": "old"}`)
 
 	installer := &fakeVSCodeInstaller{}
-	v := VSCode{SettingsPath: settings, Installer: installer}
+	v := VSCode{ConfigFile: settings, Installer: installer}
 	res := theme.Resolved{
 		Family:  "catppuccin",
 		Variant: "mocha",
@@ -51,7 +51,7 @@ func TestVSCode_Apply(t *testing.T) {
 }
 
 func TestVSCode_Supports_requiresOverride(t *testing.T) {
-	v := VSCode{SettingsPath: "unused"}
+	v := VSCode{ConfigFile: "unused"}
 	if v.Supports(theme.Resolved{}) {
 		t.Error("theme without vscode override must not be supported")
 	}
@@ -63,7 +63,7 @@ func TestVSCode_Supports_requiresOverride(t *testing.T) {
 func TestVSCode_Apply_iconTheme(t *testing.T) {
 	settings := writeVSCodeSettings(t, `{"workbench.iconTheme": "material-icon-theme"}`)
 
-	v := VSCode{SettingsPath: settings}
+	v := VSCode{ConfigFile: settings}
 	res := theme.Resolved{VSCode: &theme.VSCodeSpec{Theme: "X", IconTheme: "X Icons"}}
 	testutil.NoErr(t, v.Apply(res))
 
@@ -76,7 +76,7 @@ func TestVSCode_Apply_iconTheme(t *testing.T) {
 func TestVSCode_Apply_unsetIconThemeLeftAlone(t *testing.T) {
 	settings := writeVSCodeSettings(t, `{"workbench.iconTheme": "material-icon-theme"}`)
 
-	v := VSCode{SettingsPath: settings}
+	v := VSCode{ConfigFile: settings}
 	testutil.NoErr(t, v.Apply(theme.Resolved{VSCode: &theme.VSCodeSpec{Theme: "X"}}))
 
 	out, _ := os.ReadFile(settings)
@@ -89,7 +89,7 @@ func TestVSCode_Apply_installerErrorAborts(t *testing.T) {
 	settings := writeVSCodeSettings(t, `{"workbench.colorTheme": "old"}`)
 
 	installer := &fakeVSCodeInstaller{err: os.ErrPermission}
-	v := VSCode{SettingsPath: settings, Installer: installer}
+	v := VSCode{ConfigFile: settings, Installer: installer}
 	res := theme.Resolved{VSCode: &theme.VSCodeSpec{
 		Theme:      "X",
 		Extensions: []string{"catppuccin.catppuccin-vsc"},
@@ -106,7 +106,7 @@ func TestVSCode_Apply_installerErrorAborts(t *testing.T) {
 func TestVSCode_Apply_nilInstaller(t *testing.T) {
 	settings := writeVSCodeSettings(t, `{"workbench.colorTheme": "old"}`)
 
-	v := VSCode{SettingsPath: settings}
+	v := VSCode{ConfigFile: settings}
 	res := theme.Resolved{VSCode: &theme.VSCodeSpec{
 		Theme:      "X",
 		Extensions: []string{"catppuccin.catppuccin-vsc"},

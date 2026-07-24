@@ -38,7 +38,7 @@ func TestGhostty_Apply(t *testing.T) {
 	cfgPath := filepath.Join(t.TempDir(), "config.ghostty")
 	testutil.NoErr(t, os.WriteFile(cfgPath, []byte("theme = old"), 0o644))
 
-	g := Ghostty{ConfigPath: cfgPath}
+	g := Ghostty{ConfigFile: cfgPath}
 	res := theme.Resolved{
 		Family:  "catppuccin",
 		Variant: "mocha",

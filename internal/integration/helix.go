@@ -3,13 +3,14 @@ package integration
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/Nico-Mayer/themectl/internal/config"
 	"github.com/Nico-Mayer/themectl/internal/theme"
 )
 
 type Helix struct {
-	ConfigPath string
+	ConfigFile string
 }
 
 func (Helix) Name() string {
@@ -23,7 +24,7 @@ func (Helix) Supports(t theme.Resolved) bool {
 func (h Helix) Apply(t theme.Resolved) error {
 	name := t.Helix.Theme
 
-	data, err := os.ReadFile(h.ConfigPath)
+	data, err := os.ReadFile(h.ConfigFile)
 	if err != nil {
 		return fmt.Errorf("read helix config: %w", err)
 	}
@@ -33,7 +34,7 @@ func (h Helix) Apply(t theme.Resolved) error {
 		return err
 	}
 
-	if err := os.WriteFile(h.ConfigPath, []byte(updated), 0o644); err != nil {
+	if err := os.WriteFile(h.ConfigFile, []byte(updated), 0o644); err != nil {
 		return fmt.Errorf("write helix config: %w", err)
 	}
 
@@ -41,9 +42,9 @@ func (h Helix) Apply(t theme.Resolved) error {
 }
 
 func (h Helix) Check() error {
-	return checkConfigDir(h.Name(), h.ConfigPath)
+	return checkConfigDir(h.Name(), filepath.Dir(h.ConfigFile))
 }
 
 func newHelix(cfg config.Config) Integration {
-	return Helix{ConfigPath: cfg.Settings.Helix.Path(appConfigFile("helix", "config.toml"))}
+	return Helix{ConfigFile: cfg.Settings.Helix.ConfigFileOr(appConfigFile("helix", "config.toml"))}
 }

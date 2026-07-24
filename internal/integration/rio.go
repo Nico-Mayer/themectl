@@ -9,14 +9,14 @@ import (
 )
 
 type Rio struct {
-	ConfigPath string
+	ConfigFile string
 	SourceFile string
 }
 
 func (r Rio) Name() string { return "rio" }
 
 func (r Rio) Apply(t theme.Resolved) error {
-	before, err := os.ReadFile(r.ConfigPath)
+	before, err := os.ReadFile(r.ConfigFile)
 	if err != nil {
 		return err
 	}
@@ -26,12 +26,12 @@ func (r Rio) Apply(t theme.Resolved) error {
 		return err
 	}
 
-	err = os.WriteFile(r.ConfigPath, []byte(updated), 0o644)
+	err = os.WriteFile(r.ConfigFile, []byte(updated), 0o644)
 	if err != nil {
 		return err
 	}
 
-	configDir := filepath.Dir(r.ConfigPath)
+	configDir := filepath.Dir(r.ConfigFile)
 	err = symlink(r.SourceFile, filepath.Join(configDir, "themes", "themectl.toml"))
 	if err != nil {
 		return err
@@ -41,7 +41,7 @@ func (r Rio) Apply(t theme.Resolved) error {
 }
 
 func (r Rio) Check() error {
-	return checkConfigDir(r.Name(), r.ConfigPath)
+	return checkConfigDir(r.Name(), filepath.Dir(r.ConfigFile))
 }
 
 func (r Rio) Supports(t theme.Resolved) bool {
@@ -51,7 +51,7 @@ func (r Rio) Supports(t theme.Resolved) bool {
 
 func newRio(cfg config.Config) Integration {
 	return Rio{
-		ConfigPath: cfg.Settings.Rio.Path(appConfigFile("rio", "config.toml")),
+		ConfigFile: cfg.Settings.Rio.ConfigFileOr(appConfigFile("rio", "config.toml")),
 		SourceFile: filepath.Join(cfg.CurrentDir(), theme.RioAssetName),
 	}
 }

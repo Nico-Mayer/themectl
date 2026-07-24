@@ -27,11 +27,10 @@ type FileSettings struct {
 }
 
 type SymlinkSettings struct {
-	Target    string `toml:"target,omitempty" jsonschema:"description=Where the symlink is created. Supports env vars ($VAR) and a leading ~. When moved outside the app's default config dir also set config_dir so the health check probes the right place."`
-	ConfigDir string `toml:"config_dir,omitempty" jsonschema:"description=App config dir probed by the health check; the integration is skipped when it is missing. Defaults to the app's standard config dir. Supports env vars ($VAR) and a leading ~."`
+	Target string `toml:"target,omitempty" jsonschema:"description=Where the symlink is created. Supports env vars ($VAR) and a leading ~."`
 }
 
-func (f FileSettings) Path(fallback string) string {
+func (f FileSettings) ConfigFileOr(fallback string) string {
 	p := strings.TrimSpace(f.ConfigFile)
 	if p == "" {
 		return fallback
@@ -39,16 +38,8 @@ func (f FileSettings) Path(fallback string) string {
 	return expandPath(p)
 }
 
-func (s SymlinkSettings) Path(fallback string) string {
+func (s SymlinkSettings) TargetOr(fallback string) string {
 	p := strings.TrimSpace(s.Target)
-	if p == "" {
-		return fallback
-	}
-	return expandPath(p)
-}
-
-func (s SymlinkSettings) Dir(fallback string) string {
-	p := strings.TrimSpace(s.ConfigDir)
 	if p == "" {
 		return fallback
 	}

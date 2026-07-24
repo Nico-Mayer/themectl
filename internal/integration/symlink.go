@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/Nico-Mayer/themectl/internal/theme"
@@ -13,7 +14,7 @@ type SymlinkIntegration struct {
 	IntegrationName string
 	SourceFile      string
 	Target          string
-	AppConfigDir    string
+	Binary          string
 }
 
 func (s SymlinkIntegration) Name() string { return s.IntegrationName }
@@ -28,7 +29,10 @@ func (s SymlinkIntegration) Apply(theme.Resolved) error {
 }
 
 func (s SymlinkIntegration) Check() error {
-	return checkFileExists(s.IntegrationName+" config dir", s.AppConfigDir)
+	if _, err := exec.LookPath(s.Binary); err != nil {
+		return fmt.Errorf("%s not found on PATH", s.Binary)
+	}
+	return nil
 }
 
 func symlink(source, target string) error {

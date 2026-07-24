@@ -29,9 +29,9 @@ func TestEnabled_settingsOverridePaths(t *testing.T) {
 
 	ints := Enabled(cfg)
 	testutil.Equal(t, len(ints), 3)
-	testutil.Equal(t, ints[0].(Ghostty).ConfigPath, "/custom/config.ghostty")
-	testutil.Equal(t, ints[1].(Helix).ConfigPath, "/custom/config.toml")
-	testutil.Equal(t, ints[2].(Zed).SettingsPath, "/custom/settings.json")
+	testutil.Equal(t, ints[0].(Ghostty).ConfigFile, "/custom/config.ghostty")
+	testutil.Equal(t, ints[1].(Helix).ConfigFile, "/custom/config.toml")
+	testutil.Equal(t, ints[2].(Zed).ConfigFile, "/custom/settings.json")
 }
 
 func TestEnabled_defaultPathsWhenUnset(t *testing.T) {
@@ -41,7 +41,7 @@ func TestEnabled_defaultPathsWhenUnset(t *testing.T) {
 
 	ints := Enabled(cfg)
 	testutil.Equal(t, len(ints), 1)
-	got := ints[0].(Ghostty).ConfigPath
+	got := ints[0].(Ghostty).ConfigFile
 	want := filepath.Join(".config", "ghostty", "config.ghostty")
 	if !strings.HasSuffix(got, want) {
 		t.Errorf("default ghostty path = %q, want suffix %q", got, want)

@@ -6,14 +6,16 @@ import (
 	"log/slog"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
+	"runtime"
 
 	"github.com/Nico-Mayer/themectl/internal/config"
 	"github.com/Nico-Mayer/themectl/internal/theme"
 )
 
 type Ghostty struct {
-	ConfigPath string
+	ConfigFile string
 }
 
 var ghosttyThemeLine = regexp.MustCompile(`(?m)^(\s*theme\s*=\s*).*$`)
@@ -30,13 +32,13 @@ func (Ghostty) Name() string {
 }
 
 func (Ghostty) Supports(t theme.Resolved) bool {
-	return t.Ghostty != nil && t.Ghostty.Theme != ""
+	return t.Ghostty != nil && t.Ghostty.Theme != "" && runtime.GOOS != "windows"
 }
 
 func (g Ghostty) Apply(t theme.Resolved) error {
 	name := t.Ghostty.Theme
 
-	data, err := os.ReadFile(g.ConfigPath)
+	data, err := os.ReadFile(g.ConfigFile)
 	if err != nil {
 		return fmt.Errorf("read ghostty config: %w", err)
 	}
@@ -46,7 +48,7 @@ func (g Ghostty) Apply(t theme.Resolved) error {
 		return err
 	}
 
-	if err := os.WriteFile(g.ConfigPath, []byte(updated), 0o644); err != nil {
+	if err := os.WriteFile(g.ConfigFile, []byte(updated), 0o644); err != nil {
 		return fmt.Errorf("write ghostty config: %w", err)
 	}
 
@@ -58,11 +60,11 @@ func (g Ghostty) Apply(t theme.Resolved) error {
 }
 
 func (g Ghostty) Check() error {
-	return checkConfigDir(g.Name(), g.ConfigPath)
+	return checkConfigDir(g.Name(), filepath.Dir(g.ConfigFile))
 }
 
 func newGhostty(cfg config.Config) Integration {
-	return Ghostty{ConfigPath: cfg.Settings.Ghostty.Path(appConfigFile("ghostty", "config.ghostty"))}
+	return Ghostty{ConfigFile: cfg.Settings.Ghostty.ConfigFileOr(appConfigFile("ghostty", "config.ghostty"))}
 }
 
 func reloadGhostty() error {

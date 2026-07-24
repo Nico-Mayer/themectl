@@ -73,14 +73,16 @@ func TestSymlinkIntegration_supportsRequiresSourceFile(t *testing.T) {
 	}
 }
 
-func TestSymlinkIntegration_checkProbesAppConfigDir(t *testing.T) {
-	tmp := t.TempDir()
-	s := SymlinkIntegration{IntegrationName: "nvim", AppConfigDir: filepath.Join(tmp, "nvim")}
+func TestSymlinkIntegration_checkRequiresBinary(t *testing.T) {
+	bin := filepath.Join(t.TempDir(), "nvim")
+	testutil.NoErr(t, os.WriteFile(bin, []byte("#!/bin/sh\n"), 0o755))
+	t.Setenv("PATH", filepath.Dir(bin))
 
-	if err := s.Check(); err == nil {
-		t.Error("expected error when app config dir is missing")
-	}
-
-	testutil.NoErr(t, os.MkdirAll(s.AppConfigDir, 0o755))
+	s := SymlinkIntegration{IntegrationName: "nvim", Binary: "nvim"}
 	testutil.NoErr(t, s.Check())
+
+	s.Binary = "definitely-not-installed"
+	if err := s.Check(); err == nil {
+		t.Error("expected error when binary is not on PATH")
+	}
 }

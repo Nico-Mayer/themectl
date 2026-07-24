@@ -81,11 +81,7 @@
       "properties": {
         "target": {
           "type": "string",
-          "description": "Where the symlink is created. Supports env vars ($VAR) and a leading ~. When moved outside the app's default config dir also set config_dir so the health check probes the right place."
-        },
-        "config_dir": {
-          "type": "string",
-          "description": "App config dir probed by the health check; the integration is skipped when it is missing. Defaults to the app's standard config dir. Supports env vars ($VAR) and a leading ~."
+          "description": "Where the symlink is created. Supports env vars ($VAR) and a leading ~."
         }
       },
       "additionalProperties": false,
@@ -96,11 +92,7 @@
       "properties": {
         "target": {
           "type": "string",
-          "description": "Where the symlink is created. Supports env vars ($VAR) and a leading ~. When moved outside the app's default config dir also set config_dir so the health check probes the right place."
-        },
-        "config_dir": {
-          "type": "string",
-          "description": "App config dir probed by the health check; the integration is skipped when it is missing. Defaults to the app's standard config dir. Supports env vars ($VAR) and a leading ~."
+          "description": "Where the symlink is created. Supports env vars ($VAR) and a leading ~."
         }
       },
       "additionalProperties": false,
@@ -111,11 +103,7 @@
       "properties": {
         "target": {
           "type": "string",
-          "description": "Where the symlink is created. Supports env vars ($VAR) and a leading ~. When moved outside the app's default config dir also set config_dir so the health check probes the right place."
-        },
-        "config_dir": {
-          "type": "string",
-          "description": "App config dir probed by the health check; the integration is skipped when it is missing. Defaults to the app's standard config dir. Supports env vars ($VAR) and a leading ~."
+          "description": "Where the symlink is created. Supports env vars ($VAR) and a leading ~."
         }
       },
       "additionalProperties": false,

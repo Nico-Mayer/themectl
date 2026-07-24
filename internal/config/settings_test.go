@@ -39,7 +39,7 @@ func TestLoadSettings(t *testing.T) {
 	})
 }
 
-func TestFileSettingsPath(t *testing.T) {
+func TestFileSettings_configFileOr(t *testing.T) {
 	t.Setenv("HOME", "/home/u")
 	t.Setenv("THEMECTL_TEST_DIR", "/from-env")
 
@@ -62,7 +62,7 @@ func TestFileSettingsPath(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := FileSettings{ConfigFile: tt.file}
-			testutil.Equal(t, f.Path(fallback), tt.want)
+			testutil.Equal(t, f.ConfigFileOr(fallback), tt.want)
 		})
 	}
 }

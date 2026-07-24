@@ -16,24 +16,24 @@ var available = map[string]func(cfg config.Config) Integration{
 		return SymlinkIntegration{
 			IntegrationName: "nvim",
 			SourceFile:      filepath.Join(cfg.CurrentDir(), theme.NvimAssetName),
-			Target:          cfg.Settings.Nvim.Path(appConfigFile("nvim", "plugins", "99_theme.lua")),
-			AppConfigDir:    cfg.Settings.Nvim.Dir(appConfigDir("nvim")),
+			Target:          cfg.Settings.Nvim.TargetOr(appConfigFile("nvim", "plugins", "99_theme.lua")),
+			Binary:          "nvim",
 		}
 	},
 	"eza": func(cfg config.Config) Integration {
 		return SymlinkIntegration{
 			IntegrationName: "eza",
 			SourceFile:      filepath.Join(cfg.CurrentDir(), theme.EzaAssetName),
-			Target:          cfg.Settings.Eza.Path(appConfigFile("eza", "theme.yml")),
-			AppConfigDir:    cfg.Settings.Eza.Dir(appConfigDir("eza")),
+			Target:          cfg.Settings.Eza.TargetOr(appConfigFile("eza", "theme.yml")),
+			Binary:          "eza",
 		}
 	},
 	"yazi": func(cfg config.Config) Integration {
 		return SymlinkIntegration{
 			IntegrationName: "yazi",
 			SourceFile:      filepath.Join(cfg.CurrentDir(), theme.YaziAssetName),
-			Target:          cfg.Settings.Yazi.Path(appConfigFile("yazi", "flavors", "themectl.yazi", "flavor.toml")),
-			AppConfigDir:    cfg.Settings.Yazi.Dir(appConfigDir("yazi")),
+			Target:          cfg.Settings.Yazi.TargetOr(appConfigFile("yazi", "flavors", "themectl.yazi", "flavor.toml")),
+			Binary:          "yazi",
 		}
 	},
 	"system-appearance": newSystemAppearance,

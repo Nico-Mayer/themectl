@@ -14,7 +14,7 @@ func TestHelix_Apply(t *testing.T) {
 	cfgPath := filepath.Join(t.TempDir(), "config.toml")
 	testutil.NoErr(t, os.WriteFile(cfgPath, []byte(`theme = "old"`), 0o644))
 
-	h := Helix{ConfigPath: cfgPath}
+	h := Helix{ConfigFile: cfgPath}
 	res := theme.Resolved{
 		Family:  "catppuccin",
 		Variant: "mocha",
@@ -30,7 +30,7 @@ func TestHelix_Apply(t *testing.T) {
 }
 
 func TestHelix_Supports_requiresOverride(t *testing.T) {
-	h := Helix{ConfigPath: "unused"}
+	h := Helix{ConfigFile: "unused"}
 	if h.Supports(theme.Resolved{}) {
 		t.Error("theme without helix override must not be supported")
 	}

@@ -21,11 +21,11 @@ func rioFixture(t *testing.T) Rio {
 	src := filepath.Join(dir, "rio.toml")
 	testutil.NoErr(t, os.WriteFile(src, []byte("[colors]\nbackground = \"#000000\"\n"), 0o644))
 
-	return Rio{ConfigPath: cfgPath, SourceFile: src}
+	return Rio{ConfigFile: cfgPath, SourceFile: src}
 }
 
 func (r Rio) linkPath() string {
-	return filepath.Join(filepath.Dir(r.ConfigPath), "themes", "themectl.toml")
+	return filepath.Join(filepath.Dir(r.ConfigFile), "themes", "themectl.toml")
 }
 
 func TestRio_Apply_linksAndActivates(t *testing.T) {
@@ -41,7 +41,7 @@ func TestRio_Apply_linksAndActivates(t *testing.T) {
 	testutil.NoErr(t, err)
 	testutil.Equal(t, dest, r.SourceFile)
 
-	out, err := os.ReadFile(r.ConfigPath)
+	out, err := os.ReadFile(r.ConfigFile)
 	testutil.NoErr(t, err)
 	if !strings.Contains(string(out), `theme = "themectl"`) {
 		t.Errorf("config not rewritten: %q", out)
@@ -54,7 +54,7 @@ func TestRio_Apply_linksAndActivates(t *testing.T) {
 func TestRio_Apply_missingThemeLineFailsWithoutSideEffects(t *testing.T) {
 	r := rioFixture(t)
 	before := []byte("[window]\nopacity = 0.9\n")
-	testutil.NoErr(t, os.WriteFile(r.ConfigPath, before, 0o644))
+	testutil.NoErr(t, os.WriteFile(r.ConfigFile, before, 0o644))
 
 	if err := r.Apply(theme.Resolved{}); err == nil {
 		t.Fatal("expected error for config without theme line")
@@ -63,7 +63,7 @@ func TestRio_Apply_missingThemeLineFailsWithoutSideEffects(t *testing.T) {
 	if _, err := os.Lstat(r.linkPath()); err == nil {
 		t.Error("symlink created despite config error")
 	}
-	out, err := os.ReadFile(r.ConfigPath)
+	out, err := os.ReadFile(r.ConfigFile)
 	testutil.NoErr(t, err)
 	testutil.Equal(t, string(out), string(before))
 }

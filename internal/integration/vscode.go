@@ -14,8 +14,8 @@ import (
 )
 
 type VSCode struct {
-	SettingsPath string
-	Installer    ExtensionInstaller
+	ConfigFile string
+	Installer  ExtensionInstaller
 }
 
 func (v VSCode) Name() string { return "vscode" }
@@ -35,7 +35,7 @@ func (v VSCode) Apply(t theme.Resolved) error {
 		}
 	}
 
-	data, err := os.ReadFile(v.SettingsPath)
+	data, err := os.ReadFile(v.ConfigFile)
 	if err != nil {
 		return fmt.Errorf("read vscode settings: %w", err)
 	}
@@ -52,7 +52,7 @@ func (v VSCode) Apply(t theme.Resolved) error {
 		}
 	}
 
-	if err := os.WriteFile(v.SettingsPath, []byte(updated), 0o644); err != nil {
+	if err := os.WriteFile(v.ConfigFile, []byte(updated), 0o644); err != nil {
 		return fmt.Errorf("write vscode settings: %w", err)
 	}
 
@@ -60,12 +60,12 @@ func (v VSCode) Apply(t theme.Resolved) error {
 }
 
 func (v VSCode) Check() error {
-	return checkConfigDir(v.Name(), v.SettingsPath)
+	return checkConfigDir(v.Name(), filepath.Dir(v.ConfigFile))
 }
 
 func newVSCode(cfg config.Config) Integration {
 	v := VSCode{
-		SettingsPath: cfg.Settings.VSCode.Path(appConfigFile("vscode", "settings.json")),
+		ConfigFile: cfg.Settings.VSCode.ConfigFileOr(appConfigFile("vscode", "settings.json")),
 	}
 	if _, err := exec.LookPath("code"); err != nil {
 		slog.Debug("vscode extension install disabled, code CLI not found", "err", err)

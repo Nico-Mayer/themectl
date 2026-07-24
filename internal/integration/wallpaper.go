@@ -20,7 +20,7 @@ func (*Wallpaper) Name() string {
 }
 
 func (w *Wallpaper) Check() error {
-	return checkFileExists("themes dir", w.manager.ThemesDir)
+	return checkDirExists("themes dir", w.manager.ThemesDir)
 }
 
 func (w *Wallpaper) Supports(t theme.Resolved) bool {

@@ -10,6 +10,10 @@ mr = "mise run"
 description = "Runs the app"
 run = "go run ./cmd/themectl"
 
+[tasks.fmt]
+description = "Run go fmt"
+run = "gofmt -w ."
+
 [tasks.build]
 description = "Compile the themectl binary"
 run = "go build -o themectl ./cmd/themectl"
