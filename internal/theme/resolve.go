@@ -25,6 +25,9 @@ type Resolved struct {
 	Helix            *HelixSpec
 	Zed              *ZedSpec
 	VSCode           *VSCodeSpec
+	Nvim             *SymlinkSpec
+	Yazi             *SymlinkSpec
+	Eza              *SymlinkSpec
 }
 
 func (r *Resolved) ID() string {
@@ -48,6 +51,26 @@ func (r *Resolved) Themes() map[string]string {
 	return out
 }
 
+const (
+	NvimAssetName = "nvim.lua"
+	YaziAssetName = "yazi-flavor.toml"
+	EzaAssetName  = "eza.yml"
+)
+
+func (r *Resolved) RemoteAssets() map[string]string {
+	out := make(map[string]string)
+	if r.Nvim != nil && r.Nvim.URL != "" {
+		out[NvimAssetName] = r.Nvim.URL
+	}
+	if r.Yazi != nil && r.Yazi.URL != "" {
+		out[YaziAssetName] = r.Yazi.URL
+	}
+	if r.Eza != nil && r.Eza.URL != "" {
+		out[EzaAssetName] = r.Eza.URL
+	}
+	return out
+}
+
 func Resolve(fam Family, variant Variant) (Resolved, error) {
 	spec := merge(fam.Defaults, variant.Spec)
 	if spec.Appearance == nil {
@@ -64,6 +87,9 @@ func Resolve(fam Family, variant Variant) (Resolved, error) {
 		Helix:            spec.Helix,
 		Zed:              spec.Zed,
 		VSCode:           spec.VSCode,
+		Nvim:             spec.Nvim,
+		Yazi:             spec.Yazi,
+		Eza:              spec.Eza,
 	}, nil
 }
 

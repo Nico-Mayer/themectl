@@ -1,24 +1,25 @@
 package store
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"maps"
 	"os"
 	"path"
 	"path/filepath"
 	"slices"
-	"strings"
 )
 
-func (s *Store) Materialize(themeId, targetDir string) error {
-	family, variant, exists := strings.Cut(themeId, "/")
-	if !exists {
-		return fmt.Errorf("theme id %q: want \"family/variant\"", themeId)
+func (s *Store) Materialize(ctx context.Context, themeId, targetDir string) error {
+	res, err := s.Resolve(themeId)
+	if err != nil {
+		return err
 	}
 
-	assets, err := s.Assets(family, variant)
+	assets, err := s.Assets(res.Family, res.Variant)
 	if err != nil {
 		return err
 	}
@@ -33,12 +34,29 @@ func (s *Store) Materialize(themeId, targetDir string) error {
 		return err
 	}
 
+	remote := res.RemoteAssets()
 	for name, p := range assets {
+		if _, ok := remote[name]; ok {
+			slog.Warn("bundled asset shadowed by url", "asset", name, "theme", themeId)
+			continue
+		}
+
 		data, err := fs.ReadFile(s.fsys, p)
 		if err != nil {
 			return fmt.Errorf("read asset %s: %w", p, err)
 		}
 
+		err = os.WriteFile(filepath.Join(targetDir, name), data, 0o644)
+		if err != nil {
+			return fmt.Errorf("write asset %s: %w", name, err)
+		}
+	}
+
+	for name, url := range remote {
+		data, err := s.fetcher.Fetch(ctx, url)
+		if err != nil {
+			slog.Warn("remote asset skipped", "asset", name, "url", url, "err", err)
+		}
 		err = os.WriteFile(filepath.Join(targetDir, name), data, 0o644)
 		if err != nil {
 			return fmt.Errorf("write asset %s: %w", name, err)

@@ -1,5 +1,9 @@
 package theme
 
+type SymlinkSpec struct {
+	URL string `toml:"url,omitempty" jsonschema:"description=URL of the theme file to symlink. Falls back to the local asset when unset."`
+}
+
 type GhosttySpec struct {
 	Theme string `toml:"theme,omitempty" jsonschema:"description=Ghostty theme name."`
 }
@@ -27,6 +31,9 @@ type Spec struct {
 	Helix            *HelixSpec   `toml:"helix,omitempty" jsonschema:"description=Helix integration settings."`
 	Zed              *ZedSpec     `toml:"zed,omitempty" jsonschema:"description=Zed integration settings."`
 	VSCode           *VSCodeSpec  `toml:"vscode,omitempty" jsonschema:"description=VS Code integration settings."`
+	Nvim             *SymlinkSpec `toml:"nvim,omitempty" jsonschema:"description=Nvim integration settings."`
+	Yazi             *SymlinkSpec `toml:"yazi,omitempty" jsonschema:"description=Yazi integration settings."`
+	Eza              *SymlinkSpec `toml:"eza,omitempty" jsonschema:"description=Eza integration settings."`
 }
 
 type ThemeFile struct {

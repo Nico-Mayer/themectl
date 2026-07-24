@@ -101,3 +101,37 @@ func TestResolve_vscode(t *testing.T) {
 	testutil.Diff(t, []string{"catppuccin.catppuccin-vsc"}, res.VSCode.Extensions)
 	testutil.Equal(t, res.Themes()["vscode"], "Catppuccin Mocha")
 }
+
+func TestResolve_assetTarget(t *testing.T) {
+	fam := Family{
+		Name: "cat",
+		Defaults: Spec{
+			Appearance: new(Dark),
+			Nvim: &SymlinkSpec{
+				URL: "https://test.com",
+			},
+			Eza: &SymlinkSpec{
+				URL: "https://eza.com/theme",
+			},
+		},
+	}
+
+	v := Variant{
+		Name: "mocha",
+		Spec: Spec{
+			Nvim: &SymlinkSpec{
+				URL: "https://catppuccin/mocha/nvim",
+			},
+		},
+	}
+
+	res, err := Resolve(fam, v)
+	testutil.NoErr(t, err)
+	testutil.Equal(t, res.Nvim.URL, "https://catppuccin/mocha/nvim")
+	testutil.Equal(t, res.Eza.URL, "https://eza.com/theme")
+
+	got := res.RemoteAssets()
+	testutil.Equal(t, len(got), 2)
+	testutil.Equal(t, got[NvimAssetName], "https://catppuccin/mocha/nvim")
+	testutil.Equal(t, got[EzaAssetName], "https://eza.com/theme")
+}
