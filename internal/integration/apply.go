@@ -16,6 +16,11 @@ func ApplyAll(integrations []Integration, t theme.Resolved) error {
 	for i, in := range integrations {
 		wg.Go(func() {
 			if !in.Supports(t) {
+				if r, ok := in.(Resetter); ok {
+					if err := r.Reset(); err != nil {
+						slog.Warn("integration reset failed", "integration", in.Name(), "err", err)
+					}
+				}
 				slog.Info("integration skipped, theme does not support it", "integration", in.Name())
 				return
 			}

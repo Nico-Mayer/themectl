@@ -15,6 +15,10 @@ type Integration interface {
 	Apply(t theme.Resolved) error
 }
 
+type Resetter interface {
+	Reset() error
+}
+
 func checkConfigDir(name, dir string) error {
 	if dir == "" {
 		return fmt.Errorf("no config dir configured for %s", name)
