@@ -36,7 +36,7 @@ func (p appPath) dir() string {
 var appDirs = map[string]appPath{
 	"ghostty": {rel: []string{"ghostty"}},
 	"helix":   {rel: []string{"helix"}},
-	"eza":     {rel: []string{"eza"}},
+	"eza":     {base: ezaConfigDir, rel: []string{"eza"}},
 	"nvim":    {base: localConfigDir, rel: []string{"nvim"}},
 	"yazi":    {rel: []string{"yazi"}, windows: []string{"yazi", "config"}},
 	"zed":     {rel: []string{"zed"}, windows: []string{"Zed"}},
@@ -86,4 +86,11 @@ func homeDir() string {
 	}
 
 	return home
+}
+
+func ezaConfigDir() string {
+	if dir := os.Getenv("EZA_CONFIG_DIR"); dir != "" {
+		return dir
+	}
+	return filepath.Join(homeDir(), ".config")
 }
