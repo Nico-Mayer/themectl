@@ -29,7 +29,10 @@ func appConfigDir(app string) string {
 		}
 		return filepath.Join(configDir(), "zed")
 	case "rio":
-		return filepath.Join(configDir(), "rio")
+		if dir := os.Getenv("RIO_CONFIG_HOME"); dir != "" {
+			return dir
+		}
+		return filepath.Join(localConfigDir(), "rio")
 	default:
 		return filepath.Join(configDir(), app)
 	}
