@@ -50,6 +50,29 @@ appearance = "light"
 theme = "Catppuccin Latte" # icon_theme and extensions inherited
 ```
 
+### Remote assets
+
+Symlink integrations (`nvim`, `eza`, `yazi`, etc.) can reference their asset by URL
+instead of bundling the file — handy for linking an existing port of a theme
+without duplicating it:
+
+```toml
+[defaults.nvim]
+url = "https://raw.githubusercontent.com/catppuccin/nvim/main/lua/catppuccin/init.lua"
+
+[variants.latte.nvim]
+url = "https://raw.githubusercontent.com/catppuccin/nvim/main/lua/catppuccin/latte.lua"
+```
+
+When `url` is set it is the source of truth: a bundled file with the same
+canonical name is ignored (with a warning). When it is unset, the bundled
+file is used as before. Only `https://` URLs are accepted.
+
+Downloads are cached for a week, so applying a theme works offline once the
+asset has been fetched. If a fetch fails with nothing cached, that asset is
+skipped with a warning and the integration skips itself for that run.
+`themectl cache clear` forces a refetch.
+
 ```toml
 # themectl.toml
 #:schema https://raw.githubusercontent.com/Nico-Mayer/themectl/main/schemas/settings.schema.json
@@ -74,7 +97,6 @@ target = "~/.dotfiles/nvim/plugin/99_theme.lua"
 ### Features
 
 - `create` command: TUI form that scaffolds a new theme folder in themesDir()
-- Allow theme specs to reference assets by URL instead of bundling them (link existing ports of themes, no duplication). Needs network + caching for offline use.
 - Add a option in settings to make a integration exclusicve for one operating system or exlude for one
 
 ### Missing integrations
@@ -87,5 +109,6 @@ target = "~/.dotfiles/nvim/plugin/99_theme.lua"
 ### Maybe
 
 - Expose a color palette per theme so the raycast extension can display it in the theme picker
+- `sha256` field next to `url` to pin remote assets against upstream tampering
 - Philips Hue integration?
 - Declare some themes as favorites ?
