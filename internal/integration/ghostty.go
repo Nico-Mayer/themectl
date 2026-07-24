@@ -32,7 +32,7 @@ func (Ghostty) Name() string {
 }
 
 func (Ghostty) Supports(t theme.Resolved) bool {
-	return t.Ghostty != nil && t.Ghostty.Theme != "" && runtime.GOOS != "windows"
+	return t.Ghostty != nil && t.Ghostty.Theme != ""
 }
 
 func (g Ghostty) Apply(t theme.Resolved) error {
@@ -60,6 +60,10 @@ func (g Ghostty) Apply(t theme.Resolved) error {
 }
 
 func (g Ghostty) Check() error {
+	if runtime.GOOS == "windows" {
+		return fmt.Errorf("ghostty is not supported on Windows")
+	}
+
 	return checkConfigDir(g.Name(), filepath.Dir(g.ConfigFile))
 }
 
