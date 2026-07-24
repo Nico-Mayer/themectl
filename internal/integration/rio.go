@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"log/slog"
 	"os"
 	"path/filepath"
 
@@ -46,6 +47,10 @@ func (r Rio) Check() error {
 
 func (r Rio) Supports(t theme.Resolved) bool {
 	_, err := os.Stat(r.SourceFile)
+	if err != nil {
+		slog.Debug("theme does not support rio, reseeting theme key in config", "theme", t.ID())
+		setTOMLString(r.ConfigFile, "theme", "")
+	}
 	return err == nil
 }
 
