@@ -135,3 +135,18 @@ func TestResolve_assetTarget(t *testing.T) {
 	testutil.Equal(t, got[NvimAssetName], "https://catppuccin/mocha/nvim")
 	testutil.Equal(t, got[EzaAssetName], "https://eza.com/theme")
 }
+
+func TestResolve_rioAsset(t *testing.T) {
+	fam := Family{Name: "cat", Defaults: Spec{
+		Appearance: new(Dark),
+		Rio:        &SymlinkSpec{URL: "https://example.com/default.toml"},
+	}}
+	v := Variant{Name: "mocha", Spec: Spec{
+		Rio: &SymlinkSpec{URL: "https://example.com/mocha.toml"},
+	}}
+
+	res, err := Resolve(fam, v)
+	testutil.NoErr(t, err)
+	testutil.Equal(t, res.Rio.URL, "https://example.com/mocha.toml")
+	testutil.Equal(t, res.RemoteAssets()[RioAssetName], "https://example.com/mocha.toml")
+}

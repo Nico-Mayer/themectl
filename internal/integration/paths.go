@@ -28,6 +28,8 @@ func appConfigDir(app string) string {
 			return filepath.Join(configDir(), "Zed")
 		}
 		return filepath.Join(configDir(), "zed")
+	case "rio":
+		return filepath.Join(configDir(), "rio")
 	default:
 		return filepath.Join(configDir(), app)
 	}

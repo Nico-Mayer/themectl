@@ -40,6 +40,7 @@ var available = map[string]func(cfg config.Config) Integration{
 	"wallpaper":         newWallpaper,
 	"zed":               newZed,
 	"vscode":            newVSCode,
+	"rio":               newRio,
 }
 
 func Names() []string {

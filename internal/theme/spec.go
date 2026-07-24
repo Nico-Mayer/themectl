@@ -34,6 +34,7 @@ type Spec struct {
 	Nvim             *SymlinkSpec `toml:"nvim,omitempty" jsonschema:"description=Nvim integration settings."`
 	Yazi             *SymlinkSpec `toml:"yazi,omitempty" jsonschema:"description=Yazi integration settings."`
 	Eza              *SymlinkSpec `toml:"eza,omitempty" jsonschema:"description=Eza integration settings."`
+	Rio              *SymlinkSpec `toml:"rio,omitempty" jsonschema:"description=Rio integration settings."`
 }
 
 type ThemeFile struct {

@@ -28,6 +28,7 @@ type Resolved struct {
 	Nvim             *SymlinkSpec
 	Yazi             *SymlinkSpec
 	Eza              *SymlinkSpec
+	Rio              *SymlinkSpec
 }
 
 func (r *Resolved) ID() string {
@@ -55,6 +56,7 @@ const (
 	NvimAssetName = "nvim.lua"
 	YaziAssetName = "yazi-flavor.toml"
 	EzaAssetName  = "eza.yml"
+	RioAssetName  = "rio.toml"
 )
 
 func (r *Resolved) RemoteAssets() map[string]string {
@@ -67,6 +69,9 @@ func (r *Resolved) RemoteAssets() map[string]string {
 	}
 	if r.Eza != nil && r.Eza.URL != "" {
 		out[EzaAssetName] = r.Eza.URL
+	}
+	if r.Rio != nil && r.Rio.URL != "" {
+		out[RioAssetName] = r.Rio.URL
 	}
 	return out
 }
@@ -90,6 +95,7 @@ func Resolve(fam Family, variant Variant) (Resolved, error) {
 		Nvim:             spec.Nvim,
 		Yazi:             spec.Yazi,
 		Eza:              spec.Eza,
+		Rio:              spec.Rio,
 	}, nil
 }
 

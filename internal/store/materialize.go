@@ -56,6 +56,7 @@ func (s *Store) Materialize(ctx context.Context, themeId, targetDir string) erro
 		data, err := s.fetcher.Fetch(ctx, url)
 		if err != nil {
 			slog.Warn("remote asset skipped", "asset", name, "url", url, "err", err)
+			continue
 		}
 		err = os.WriteFile(filepath.Join(targetDir, name), data, 0o644)
 		if err != nil {

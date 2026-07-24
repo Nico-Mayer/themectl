@@ -120,6 +120,17 @@
           "additionalProperties": false,
           "type": "object",
           "description": "Eza integration settings."
+        },
+        "rio": {
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "URL of the theme file to symlink. Falls back to the local asset when unset."
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "description": "Rio integration settings."
         }
       },
       "additionalProperties": false,
@@ -245,6 +256,17 @@
             "additionalProperties": false,
             "type": "object",
             "description": "Eza integration settings."
+          },
+          "rio": {
+            "properties": {
+              "url": {
+                "type": "string",
+                "description": "URL of the theme file to symlink. Falls back to the local asset when unset."
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "description": "Rio integration settings."
           }
         },
         "additionalProperties": false,

@@ -3,7 +3,6 @@ package integration
 import (
 	"fmt"
 	"os"
-	"regexp"
 
 	"github.com/Nico-Mayer/themectl/internal/config"
 	"github.com/Nico-Mayer/themectl/internal/theme"
@@ -11,15 +10,6 @@ import (
 
 type Helix struct {
 	ConfigPath string
-}
-
-var helixThemeLine = regexp.MustCompile(`(theme\s*=\s*)"[^"]*"`)
-
-func setHelixTheme(config, themeName string) (string, error) {
-	if !helixThemeLine.MatchString(config) {
-		return "", fmt.Errorf("no `theme =` setting found in helix config")
-	}
-	return helixThemeLine.ReplaceAllString(config, `${1}"`+themeName+`"`), nil
 }
 
 func (Helix) Name() string {
@@ -38,7 +28,7 @@ func (h Helix) Apply(t theme.Resolved) error {
 		return fmt.Errorf("read helix config: %w", err)
 	}
 
-	updated, err := setHelixTheme(string(data), name)
+	updated, err := setTOMLString(string(data), "theme", name)
 	if err != nil {
 		return err
 	}

@@ -17,6 +17,9 @@ themectl wallpaper --random          # reshuffle wallpaper for current theme
 themectl install <git-url>           # install a theme from a git repo (--name, --force)
 themectl uninstall <theme-family>    # uninstalls the selected theme family from
 themectl update                      # updates all themes installed via git
+themectl refresh                     # reapply all integrations for current theme
+themectl doctor                      # report current theme, settings, and integration status
+themectl cache clear                 # delete all cached files (remote assets)
 ```
 
 ## Configuration
@@ -52,9 +55,9 @@ theme = "Catppuccin Latte" # icon_theme and extensions inherited
 
 ### Remote assets
 
-Symlink integrations (`nvim`, `eza`, `yazi`, etc.) can reference their asset by URL
-instead of bundling the file — handy for linking an existing port of a theme
-without duplicating it:
+Asset-based integrations (`nvim`, `eza`, `yazi`, `rio`, etc.) can reference their
+asset by URL instead of bundling the file — handy for linking an existing port
+of a theme without duplicating it:
 
 ```toml
 [defaults.nvim]
@@ -86,6 +89,9 @@ config_file = "~/.config/ghostty/config.ghostty"
 
 [zed]
 config_file = "$XDG_CONFIG_HOME/zed/settings.json"
+
+[rio]
+config_file = "~/.config/rio/config.toml" # theme symlink lands in themes/ next to it
 
 # symlink integrations: choose where the theme asset is linked
 [nvim]

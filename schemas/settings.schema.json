@@ -10,6 +10,7 @@
           "ghostty",
           "helix",
           "nvim",
+          "rio",
           "system-appearance",
           "vscode",
           "wallpaper",
@@ -64,6 +65,17 @@
       "additionalProperties": false,
       "type": "object",
       "description": "Zed integration settings."
+    },
+    "rio": {
+      "properties": {
+        "config_file": {
+          "type": "string",
+          "description": "Path to the file themectl edits. Supports env vars ($VAR) and a leading ~."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Rio integration settings."
     },
     "nvim": {
       "properties": {

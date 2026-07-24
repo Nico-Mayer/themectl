@@ -16,6 +16,7 @@ type Settings struct {
 	Helix        FileSettings    `toml:"helix,omitempty" jsonschema:"description=Helix integration settings."`
 	VSCode       FileSettings    `toml:"vscode,omitempty" jsonschema:"description=VS Code integration settings."`
 	Zed          FileSettings    `toml:"zed,omitempty" jsonschema:"description=Zed integration settings."`
+	Rio          FileSettings    `toml:"rio,omitempty" jsonschema:"description=Rio integration settings."`
 	Nvim         SymlinkSettings `toml:"nvim,omitempty" jsonschema:"description=Neovim integration settings."`
 	Eza          SymlinkSettings `toml:"eza,omitempty" jsonschema:"description=Eza integration settings."`
 	Yazi         SymlinkSettings `toml:"yazi,omitempty" jsonschema:"description=Yazi integration settings."`
@@ -83,6 +84,7 @@ func defaultSettings() Settings {
 			"eza",
 			"nvim",
 			"helix",
+			"rio",
 		},
 	}
 }
