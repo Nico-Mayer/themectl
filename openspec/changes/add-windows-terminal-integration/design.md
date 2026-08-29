@@ -127,10 +127,10 @@ Windows Terminal's file watcher covers `settings.json`. A reload re-runs the
 full settings load, which reads fragments. Writing the fragment first means the
 single `settings.json` write triggers a reload that picks up both.
 
-This is the expected behavior rather than a verified one. If a fragment change
-turns out to need a restart, the ordering is still correct and the only cost is
-a one-time restart, so this does not change the design. Flagged as a manual
-check in tasks.md.
+Verified on Windows: applying a theme while the terminal is running updates the
+colors with no restart, so the fragment written earlier in the same apply is
+picked up by the reload that the settings.json write triggers. The write order
+is load-bearing, not a precaution.
 
 ### Copy the assets, do not symlink
 
@@ -226,9 +226,6 @@ matches the codebase, which does no path probing anywhere.
   `jsonc_test.go` cases onto the new helper before deleting the old one, so the
   migration is proven against the behavior it replaces, then add cases for the
   two bugs it fixes.
-- **A fragment change alone may not trigger reload** → Write order puts the
-  `settings.json` write last, which does trigger it. Worst case is one manual
-  restart. Verified as a task.
 - **The chrome upsert writes into a user-owned array on every apply** → It
   matches strictly on the themectl-owned name, appends when absent, and hujson
   leaves the rest of the document byte-stable. Covered by a test asserting

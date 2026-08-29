@@ -39,9 +39,9 @@
 
 ## 6. Manual verification on Windows
 
-- [ ] 6.1 Apply a theme using the catppuccin mocha scheme and chrome URLs on a Store install with the terminal running, and verify the terminal colors change without a restart
-- [ ] 6.2 Confirm whether the fragment written in the same apply is picked up by the `settings.json` live reload, or whether a restart is required; record the answer in design.md and adjust the README if a restart is needed
-- [ ] 6.3 Verify the tab and tab row backgrounds match the chrome asset, including the unfocused tab row color, and that switching between catppuccin latte and mocha flips the window mode
-- [ ] 6.4 Apply a theme providing only a scheme and verify the chrome entry is removed and the window mode falls back to Windows Terminal's own default
-- [ ] 6.5 Apply a theme without Windows Terminal support and verify the scheme selection, chrome entry and fragment are all removed
-- [ ] 6.6 Verify `themectl doctor` on a machine without Windows Terminal reports the integration as unhealthy with the missing directory, and that `themectl set` still succeeds
+- [x] 6.1 Apply a theme using the catppuccin mocha scheme and chrome URLs on a Store install with the terminal running, and verify the terminal colors change without a restart
+- [x] 6.2 Confirmed: the fragment written in the same apply is picked up by the `settings.json` live reload, no restart needed. Recorded in design.md; no README change required
+- [x] 6.3 Verify the tab and tab row backgrounds match the chrome asset, including the unfocused tab row color, and that switching between catppuccin latte and mocha flips the window mode
+- [x] 6.4 Apply a theme providing only a scheme and verify the chrome entry is removed and the window mode falls back to Windows Terminal's own default
+- [x] 6.5 Apply a theme without Windows Terminal support and verify the scheme selection, chrome entry and fragment are all removed
+- [x] 6.6 Verify `themectl doctor` on a machine without Windows Terminal reports the integration as unhealthy with the missing directory, and that `themectl set` still succeeds
