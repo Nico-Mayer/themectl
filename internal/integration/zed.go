@@ -46,7 +46,7 @@ func (z Zed) Apply(t theme.Resolved) error {
 		return fmt.Errorf("read zed settings: %w", err)
 	}
 
-	updated, err := setJSONCString(string(data), "theme", spec.Theme)
+	updated, err := setJSONPath(string(data), []string{"theme"}, spec.Theme)
 	if err != nil {
 		return err
 	}
@@ -55,7 +55,7 @@ func (z Zed) Apply(t theme.Resolved) error {
 		spec.IconTheme = "Zed (Default)"
 	}
 
-	updated, err = setJSONCString(updated, "icon_theme", spec.IconTheme)
+	updated, err = setJSONPath(updated, []string{"icon_theme"}, spec.IconTheme)
 	if err != nil {
 		return err
 	}

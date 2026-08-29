@@ -139,3 +139,43 @@ func TestZed_Apply_installerErrorAborts(t *testing.T) {
 	out, _ := os.ReadFile(settings)
 	testutil.Equal(t, string(out), `{"theme": "old"}`)
 }
+
+// The regex helper this replaced bound to the first occurrence of a key
+// anywhere in the file, so a nested "theme" shadowed the real one.
+func TestZed_Apply_ignoresNestedThemeKey(t *testing.T) {
+	settings := writeZedSettings(t, "{\n  \"terminal\": {\n    \"theme\": \"do not touch\"\n  },\n  \"theme\": \"old\"\n}")
+
+	z := Zed{ConfigFile: settings}
+	res := theme.Resolved{Zed: &theme.ZedSpec{Theme: "Catppuccin Mocha", IconTheme: "Catppuccin Mocha"}}
+	testutil.NoErr(t, z.Apply(res))
+
+	out, _ := os.ReadFile(settings)
+	if !strings.Contains(string(out), `"theme": "do not touch"`) {
+		t.Errorf("nested theme was overwritten: %q", out)
+	}
+	if !strings.Contains(string(out), `"theme": "Catppuccin Mocha"`) {
+		t.Errorf("top-level theme not rewritten: %q", out)
+	}
+}
+
+// Zed's object form has no string to match, so the regex helper fell through to
+// its append path and left the file with two "theme" keys.
+func TestZed_Apply_replacesObjectValuedTheme(t *testing.T) {
+	settings := writeZedSettings(t,
+		`{"theme": {"mode": "system", "light": "One Light", "dark": "One Dark"}}`)
+
+	z := Zed{ConfigFile: settings}
+	res := theme.Resolved{Zed: &theme.ZedSpec{Theme: "Catppuccin Mocha", IconTheme: "Catppuccin Mocha"}}
+	testutil.NoErr(t, z.Apply(res))
+
+	out, _ := os.ReadFile(settings)
+	if strings.Count(string(out), `"theme"`) != 1 {
+		t.Errorf("expected exactly one theme key, got: %q", out)
+	}
+	if strings.Contains(string(out), "One Dark") {
+		t.Errorf("old object value survived: %q", out)
+	}
+	if !strings.Contains(string(out), `"theme": "Catppuccin Mocha"`) {
+		t.Errorf("theme not rewritten: %q", out)
+	}
+}

@@ -40,13 +40,13 @@ func (v VSCode) Apply(t theme.Resolved) error {
 		return fmt.Errorf("read vscode settings: %w", err)
 	}
 
-	updated, err := setJSONCString(string(data), "workbench.colorTheme", spec.Theme)
+	updated, err := setJSONPath(string(data), []string{"workbench.colorTheme"}, spec.Theme)
 	if err != nil {
 		return err
 	}
 
 	if spec.IconTheme != "" {
-		updated, err = setJSONCString(updated, "workbench.iconTheme", spec.IconTheme)
+		updated, err = setJSONPath(updated, []string{"workbench.iconTheme"}, spec.IconTheme)
 		if err != nil {
 			return err
 		}

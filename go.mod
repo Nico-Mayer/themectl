@@ -12,6 +12,7 @@ require (
 	github.com/invopop/jsonschema v0.14.0
 	github.com/mattn/go-isatty v0.0.23
 	github.com/reujab/wallpaper v0.0.0-20210630195606-5f9f655b3740
+	github.com/tailscale/hujson v0.0.0-20260727124030-b80ff77dac4f
 	github.com/urfave/cli/v3 v3.10.1
 	golang.org/x/sys v0.47.0
 )
