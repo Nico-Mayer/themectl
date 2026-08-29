@@ -1,6 +1,7 @@
 [tools]
 "go:gotest.tools/gotestsum" = "latest"
 goreleaser = "latest"
+"npm:@fission-ai/openspec" = "1.11.0"
 svu = "latest"
 
 [shell_alias]
