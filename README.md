@@ -76,6 +76,41 @@ asset has been fetched. If a fetch fails with nothing cached, that asset is
 skipped with a warning and the integration skips itself for that run.
 `themectl cache clear` forces a refetch.
 
+### Windows Terminal
+
+Windows Terminal keeps the terminal colors and the window chrome as two separate
+things, so the integration takes two assets. `scheme_url` is the color scheme,
+`theme_url` colors the tabs and title bar. Upstream ports usually ship both, so
+you can point at them directly:
+
+```toml
+[defaults.windows-terminal]
+scheme_url = "https://raw.githubusercontent.com/catppuccin/windows-terminal/main/mocha.json"
+theme_url  = "https://raw.githubusercontent.com/catppuccin/windows-terminal/main/mochaTheme.json"
+
+[variants.latte.windows-terminal]
+scheme_url = "https://raw.githubusercontent.com/catppuccin/windows-terminal/main/latte.json"
+theme_url  = "https://raw.githubusercontent.com/catppuccin/windows-terminal/main/latteTheme.json"
+```
+
+Bundled assets work too, as `windows-terminal.json` and
+`windows-terminal-theme.json`. Whatever the assets call themselves, themectl
+installs both as `themectl`, so you never have to repeat a name. Light or dark
+window chrome comes from the theme asset itself, not from `appearance`.
+
+`theme_url` is optional. With only a scheme, the terminal colors change and the
+chrome falls back to Windows Terminal's own default.
+
+The integration runs on Windows only. It is registered and enabled there by
+default, and is invisible everywhere else - a theme file can declare a
+`windows-terminal` section on any OS without warnings.
+
+themectl writes the color scheme as a fragment under
+`%LOCALAPPDATA%\Microsoft\Windows Terminal\Fragments\themectl\` and only
+touches `profiles.defaults.colorScheme`, the `themes` array and `theme` in
+`settings.json`. Comments and formatting are preserved, and a profile that sets
+its own `colorScheme` keeps it.
+
 ```toml
 # themectl.toml
 #:schema https://raw.githubusercontent.com/Nico-Mayer/themectl/main/schemas/settings.schema.json
@@ -93,6 +128,10 @@ config_file = "$XDG_CONFIG_HOME/zed/settings.json"
 [rio]
 config_file = "~/.config/rio/config.toml" # theme symlink lands in themes/ next to it
 
+# defaults to the Store install; set this for unpackaged, Preview or portable
+[windows-terminal]
+config_file = "$LOCALAPPDATA/Microsoft/Windows Terminal/settings.json"
+
 # symlink integrations: choose where the theme asset is linked
 [nvim]
 target = "~/.dotfiles/nvim/plugin/99_theme.lua"
@@ -107,7 +146,7 @@ target = "~/.dotfiles/nvim/plugin/99_theme.lua"
 
 ### Missing integrations
 
-- [ ] Other terminal emulators _(low)_
+- [ ] Other terminal emulators _(low)_ - Ghostty, Rio and Windows Terminal are covered
 - [ ] Chromium verify feasibility, may need elevated privileges on macOS to set policies (Helium and other Chromium forks)
 
 ### Quick wins

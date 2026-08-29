@@ -29,6 +29,7 @@ type Resolved struct {
 	Yazi             *SymlinkSpec
 	Eza              *SymlinkSpec
 	Rio              *SymlinkSpec
+	WindowsTerminal  *WindowsTerminalSpec
 }
 
 func (r *Resolved) ID() string {
@@ -57,6 +58,11 @@ const (
 	YaziAssetName = "yazi-flavor.toml"
 	EzaAssetName  = "eza.yml"
 	RioAssetName  = "rio.toml"
+
+	// Windows Terminal keeps the terminal colors and the window chrome as
+	// separate concepts, so a theme supplies them as two files.
+	WindowsTerminalAssetName      = "windows-terminal.json"
+	WindowsTerminalThemeAssetName = "windows-terminal-theme.json"
 )
 
 func (r *Resolved) RemoteAssets() map[string]string {
@@ -72,6 +78,14 @@ func (r *Resolved) RemoteAssets() map[string]string {
 	}
 	if r.Rio != nil && r.Rio.URL != "" {
 		out[RioAssetName] = r.Rio.URL
+	}
+	if r.WindowsTerminal != nil {
+		if r.WindowsTerminal.SchemeURL != "" {
+			out[WindowsTerminalAssetName] = r.WindowsTerminal.SchemeURL
+		}
+		if r.WindowsTerminal.ThemeURL != "" {
+			out[WindowsTerminalThemeAssetName] = r.WindowsTerminal.ThemeURL
+		}
 	}
 	return out
 }
@@ -96,6 +110,7 @@ func Resolve(fam Family, variant Variant) (Resolved, error) {
 		Yazi:             spec.Yazi,
 		Eza:              spec.Eza,
 		Rio:              spec.Rio,
+		WindowsTerminal:  spec.WindowsTerminal,
 	}, nil
 }
 

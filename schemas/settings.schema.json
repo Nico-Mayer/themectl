@@ -14,6 +14,7 @@
           "system-appearance",
           "vscode",
           "wallpaper",
+          "windows-terminal",
           "yazi",
           "zed"
         ]
@@ -76,6 +77,17 @@
       "additionalProperties": false,
       "type": "object",
       "description": "Rio integration settings."
+    },
+    "windows-terminal": {
+      "properties": {
+        "config_file": {
+          "type": "string",
+          "description": "Path to the file themectl edits. Supports env vars ($VAR) and a leading ~."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Windows Terminal integration settings."
     },
     "nvim": {
       "properties": {

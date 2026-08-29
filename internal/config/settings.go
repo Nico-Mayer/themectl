@@ -5,21 +5,23 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/BurntSushi/toml"
 )
 
 type Settings struct {
-	Integrations []string        `toml:"integrations,omitempty" jsonschema:"description=Integrations to run on theme apply. Replaces the default list.,uniqueItems=true"`
-	Ghostty      FileSettings    `toml:"ghostty,omitempty" jsonschema:"description=Ghostty integration settings."`
-	Helix        FileSettings    `toml:"helix,omitempty" jsonschema:"description=Helix integration settings."`
-	VSCode       FileSettings    `toml:"vscode,omitempty" jsonschema:"description=VS Code integration settings."`
-	Zed          FileSettings    `toml:"zed,omitempty" jsonschema:"description=Zed integration settings."`
-	Rio          FileSettings    `toml:"rio,omitempty" jsonschema:"description=Rio integration settings."`
-	Nvim         SymlinkSettings `toml:"nvim,omitempty" jsonschema:"description=Neovim integration settings."`
-	Eza          SymlinkSettings `toml:"eza,omitempty" jsonschema:"description=Eza integration settings."`
-	Yazi         SymlinkSettings `toml:"yazi,omitempty" jsonschema:"description=Yazi integration settings."`
+	Integrations    []string        `toml:"integrations,omitempty" jsonschema:"description=Integrations to run on theme apply. Replaces the default list.,uniqueItems=true"`
+	Ghostty         FileSettings    `toml:"ghostty,omitempty" jsonschema:"description=Ghostty integration settings."`
+	Helix           FileSettings    `toml:"helix,omitempty" jsonschema:"description=Helix integration settings."`
+	VSCode          FileSettings    `toml:"vscode,omitempty" jsonschema:"description=VS Code integration settings."`
+	Zed             FileSettings    `toml:"zed,omitempty" jsonschema:"description=Zed integration settings."`
+	Rio             FileSettings    `toml:"rio,omitempty" jsonschema:"description=Rio integration settings."`
+	WindowsTerminal FileSettings    `toml:"windows-terminal,omitempty" jsonschema:"description=Windows Terminal integration settings."`
+	Nvim            SymlinkSettings `toml:"nvim,omitempty" jsonschema:"description=Neovim integration settings."`
+	Eza             SymlinkSettings `toml:"eza,omitempty" jsonschema:"description=Eza integration settings."`
+	Yazi            SymlinkSettings `toml:"yazi,omitempty" jsonschema:"description=Yazi integration settings."`
 }
 
 type FileSettings struct {
@@ -63,21 +65,24 @@ func loadSettings(path string) (Settings, error) {
 	return s, nil
 }
 
+// defaultIntegrations is the list used when settings do not set one. Files
+// built for a single OS append to it, so an integration that cannot run here is
+// never enabled by default.
+var defaultIntegrations = []string{
+	"ghostty",
+	"zed",
+	"vscode",
+	"system-appearance",
+	"wallpaper",
+	"yazi",
+	"eza",
+	"nvim",
+	"helix",
+	"rio",
+}
+
 func defaultSettings() Settings {
-	return Settings{
-		Integrations: []string{
-			"ghostty",
-			"zed",
-			"vscode",
-			"system-appearance",
-			"wallpaper",
-			"yazi",
-			"eza",
-			"nvim",
-			"helix",
-			"rio",
-		},
-	}
+	return Settings{Integrations: slices.Clone(defaultIntegrations)}
 }
 
 func expandPath(path string) string {

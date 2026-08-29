@@ -24,17 +24,23 @@ type VSCodeSpec struct {
 	Extensions []string `toml:"extensions,omitempty" jsonschema:"description=VS Code marketplace extension IDs (publisher.name) to install.,uniqueItems=true"`
 }
 
+type WindowsTerminalSpec struct {
+	SchemeURL string `toml:"scheme_url,omitempty" jsonschema:"description=URL of the Windows Terminal color scheme JSON. Falls back to the local asset when unset."`
+	ThemeURL  string `toml:"theme_url,omitempty" jsonschema:"description=URL of the Windows Terminal theme JSON that colors the tabs and title bar. Falls back to the local asset when unset."`
+}
+
 type Spec struct {
-	Appearance       *Appearance  `toml:"appearance,omitempty" jsonschema:"description=Appearance of this variant. Falls back to the family default; resolving fails if neither sets it."`
-	WallpaperSources []string     `toml:"wallpaper_sources,omitempty" jsonschema:"description=Extra wallpaper sources: theme ids (family/variant) or shared wallpaper dir names. Falls back to the family default; the variant's own wallpaper dir is always included.,uniqueItems=true"`
-	Ghostty          *GhosttySpec `toml:"ghostty,omitempty" jsonschema:"description=Ghostty integration settings."`
-	Helix            *HelixSpec   `toml:"helix,omitempty" jsonschema:"description=Helix integration settings."`
-	Zed              *ZedSpec     `toml:"zed,omitempty" jsonschema:"description=Zed integration settings."`
-	VSCode           *VSCodeSpec  `toml:"vscode,omitempty" jsonschema:"description=VS Code integration settings."`
-	Nvim             *SymlinkSpec `toml:"nvim,omitempty" jsonschema:"description=Nvim integration settings."`
-	Yazi             *SymlinkSpec `toml:"yazi,omitempty" jsonschema:"description=Yazi integration settings."`
-	Eza              *SymlinkSpec `toml:"eza,omitempty" jsonschema:"description=Eza integration settings."`
-	Rio              *SymlinkSpec `toml:"rio,omitempty" jsonschema:"description=Rio integration settings."`
+	Appearance       *Appearance          `toml:"appearance,omitempty" jsonschema:"description=Appearance of this variant. Falls back to the family default; resolving fails if neither sets it."`
+	WallpaperSources []string             `toml:"wallpaper_sources,omitempty" jsonschema:"description=Extra wallpaper sources: theme ids (family/variant) or shared wallpaper dir names. Falls back to the family default; the variant's own wallpaper dir is always included.,uniqueItems=true"`
+	Ghostty          *GhosttySpec         `toml:"ghostty,omitempty" jsonschema:"description=Ghostty integration settings."`
+	Helix            *HelixSpec           `toml:"helix,omitempty" jsonschema:"description=Helix integration settings."`
+	Zed              *ZedSpec             `toml:"zed,omitempty" jsonschema:"description=Zed integration settings."`
+	VSCode           *VSCodeSpec          `toml:"vscode,omitempty" jsonschema:"description=VS Code integration settings."`
+	Nvim             *SymlinkSpec         `toml:"nvim,omitempty" jsonschema:"description=Nvim integration settings."`
+	Yazi             *SymlinkSpec         `toml:"yazi,omitempty" jsonschema:"description=Yazi integration settings."`
+	Eza              *SymlinkSpec         `toml:"eza,omitempty" jsonschema:"description=Eza integration settings."`
+	Rio              *SymlinkSpec         `toml:"rio,omitempty" jsonschema:"description=Rio integration settings."`
+	WindowsTerminal  *WindowsTerminalSpec `toml:"windows-terminal,omitempty" jsonschema:"description=Windows Terminal integration settings."`
 }
 
 type ThemeFile struct {

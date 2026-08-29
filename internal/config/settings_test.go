@@ -30,6 +30,24 @@ func TestLoadSettings(t *testing.T) {
 		}
 	})
 
+	t.Run("windows-terminal config_file expands env vars and ~", func(t *testing.T) {
+		t.Setenv("HOME", "/home/u")
+		t.Setenv("THEMECTL_WT_DIR", "/from-env")
+		path := filepath.Join(t.TempDir(), "settings.toml")
+		data := "[windows-terminal]\nconfig_file = \"$THEMECTL_WT_DIR/settings.json\"\n"
+		testutil.NoErr(t, os.WriteFile(path, []byte(data), 0o644))
+
+		s, err := loadSettings(path)
+		testutil.NoErr(t, err)
+		testutil.Equal(t, s.WindowsTerminal.ConfigFile, "$THEMECTL_WT_DIR/settings.json")
+		testutil.Equal(t, s.WindowsTerminal.ConfigFileOr("/fallback"), "/from-env/settings.json")
+
+		s.WindowsTerminal.ConfigFile = "~/wt/settings.json"
+		testutil.Equal(t, s.WindowsTerminal.ConfigFileOr("/fallback"), "/home/u/wt/settings.json")
+		s.WindowsTerminal.ConfigFile = ""
+		testutil.Equal(t, s.WindowsTerminal.ConfigFileOr("/fallback"), "/fallback")
+	})
+
 	t.Run("invalid toml errors", func(t *testing.T) {
 		path := filepath.Join(t.TempDir(), "settings.toml")
 		testutil.NoErr(t, os.WriteFile(path, []byte("= nope"), 0o644))

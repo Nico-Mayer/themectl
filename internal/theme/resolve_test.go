@@ -150,3 +150,44 @@ func TestResolve_rioAsset(t *testing.T) {
 	testutil.Equal(t, res.Rio.URL, "https://example.com/mocha.toml")
 	testutil.Equal(t, res.RemoteAssets()[RioAssetName], "https://example.com/mocha.toml")
 }
+
+func TestResolve_windowsTerminalAssets(t *testing.T) {
+	fam := Family{Name: "cat", Defaults: Spec{
+		Appearance: new(Dark),
+		WindowsTerminal: &WindowsTerminalSpec{
+			SchemeURL: "https://example.com/default.json",
+			ThemeURL:  "https://example.com/defaultTheme.json",
+		},
+	}}
+	// the variant overrides only the scheme; the chrome is inherited per field
+	v := Variant{Name: "mocha", Spec: Spec{
+		WindowsTerminal: &WindowsTerminalSpec{SchemeURL: "https://example.com/mocha.json"},
+	}}
+
+	res, err := Resolve(fam, v)
+	testutil.NoErr(t, err)
+	testutil.Equal(t, res.WindowsTerminal.SchemeURL, "https://example.com/mocha.json")
+	testutil.Equal(t, res.WindowsTerminal.ThemeURL, "https://example.com/defaultTheme.json")
+
+	got := res.RemoteAssets()
+	testutil.Equal(t, got[WindowsTerminalAssetName], "https://example.com/mocha.json")
+	testutil.Equal(t, got[WindowsTerminalThemeAssetName], "https://example.com/defaultTheme.json")
+}
+
+// The chrome is optional, so a scheme-only theme must not register an asset for
+// it and have Materialize try to fetch an empty URL.
+func TestResolve_windowsTerminalSchemeOnly(t *testing.T) {
+	fam := Family{Name: "cat", Defaults: Spec{Appearance: new(Dark)}}
+	v := Variant{Name: "mocha", Spec: Spec{
+		WindowsTerminal: &WindowsTerminalSpec{SchemeURL: "https://example.com/mocha.json"},
+	}}
+
+	res, err := Resolve(fam, v)
+	testutil.NoErr(t, err)
+
+	got := res.RemoteAssets()
+	testutil.Equal(t, len(got), 1)
+	testutil.Equal(t, got[WindowsTerminalAssetName], "https://example.com/mocha.json")
+	_, ok := got[WindowsTerminalThemeAssetName]
+	testutil.Equal(t, ok, false)
+}

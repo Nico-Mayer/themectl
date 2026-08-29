@@ -131,6 +131,21 @@
           "additionalProperties": false,
           "type": "object",
           "description": "Rio integration settings."
+        },
+        "windows-terminal": {
+          "properties": {
+            "scheme_url": {
+              "type": "string",
+              "description": "URL of the Windows Terminal color scheme JSON. Falls back to the local asset when unset."
+            },
+            "theme_url": {
+              "type": "string",
+              "description": "URL of the Windows Terminal theme JSON that colors the tabs and title bar. Falls back to the local asset when unset."
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "description": "Windows Terminal integration settings."
         }
       },
       "additionalProperties": false,
@@ -267,6 +282,21 @@
             "additionalProperties": false,
             "type": "object",
             "description": "Rio integration settings."
+          },
+          "windows-terminal": {
+            "properties": {
+              "scheme_url": {
+                "type": "string",
+                "description": "URL of the Windows Terminal color scheme JSON. Falls back to the local asset when unset."
+              },
+              "theme_url": {
+                "type": "string",
+                "description": "URL of the Windows Terminal theme JSON that colors the tabs and title bar. Falls back to the local asset when unset."
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "description": "Windows Terminal integration settings."
           }
         },
         "additionalProperties": false,

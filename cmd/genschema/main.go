@@ -97,7 +97,7 @@ func run() error {
 }
 
 func injectIntegrationNames(s *jsonschema.Schema) {
-	names := integration.Names()
+	names := integration.AllNames()
 	enum := make([]any, len(names))
 	for i, n := range names {
 		enum[i] = n
