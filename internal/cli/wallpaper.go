@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"path/filepath"
+	"strings"
 
 	"charm.land/huh/v2"
 	"github.com/Nico-Mayer/themectl/internal/config"
@@ -36,7 +37,7 @@ func (a app) wallpaperCmd() *cli.Command {
 				return nil
 			}
 			if err != nil {
-				return err
+				return fmt.Errorf("select wallpaper: %w", err)
 			}
 
 			return setWallpaper(manager, selected)
@@ -53,7 +54,7 @@ func (a app) listWallpapersCmd() *cli.Command {
 		Arguments: []cli.Argument{
 			&cli.StringArg{
 				Name:      "theme",
-				UsageText: "theme ID (defaults to the current theme)",
+				UsageText: "Theme ID (default: current theme)",
 			},
 		},
 		Action: func(ctx context.Context, c *cli.Command) error {
@@ -75,19 +76,19 @@ func (a app) listWallpapersCmd() *cli.Command {
 func (a app) setWallpaperCmd() *cli.Command {
 	return &cli.Command{
 		Name:      "set",
-		Usage:     "Set the wallpaper from a file or at random",
+		Usage:     "Set the wallpaper from a file or the current theme",
 		ArgsUsage: "<filepath>",
 		Arguments: []cli.Argument{
 			&cli.StringArg{
 				Name:      "path",
-				UsageText: "filepath to the wallpaper image",
+				UsageText: "Path to wallpaper image",
 			},
 		},
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:    "random",
 				Aliases: []string{"r"},
-				Usage:   "Set a random wallpaper from the current theme",
+				Usage:   "Select a random wallpaper from the current theme",
 			},
 		},
 		Action: func(ctx context.Context, c *cli.Command) error {
@@ -99,7 +100,7 @@ func (a app) setWallpaperCmd() *cli.Command {
 
 			path := c.StringArg("path")
 			if path == "" {
-				return fmt.Errorf("no wallpaper path provided")
+				return fmt.Errorf("wallpaper path is required unless --random is used")
 			}
 			return setWallpaper(manager, path)
 		},
@@ -113,6 +114,14 @@ func applyRandomWallpaper(cfg config.Config, store *store.Store, manager wallpap
 	}
 
 	if err := manager.ApplyRandom(resolved); err != nil {
+		if errors.Is(err, wallpaper.ErrNoCandidates) {
+			slog.Warn(
+				"wallpaper not changed",
+				"theme", resolved.ID(),
+				"reason", "no candidates; run `themectl wallpaper set <filepath>` to choose a file",
+			)
+			return nil
+		}
 		return fmt.Errorf("apply random wallpaper: %w", err)
 	}
 
@@ -131,7 +140,7 @@ func setWallpaper(manager wallpaper.Manager, path string) error {
 
 func pickWallpaper(candidates []string) (string, error) {
 	if len(candidates) == 0 {
-		return "", fmt.Errorf("no wallpaper candidates found")
+		return "", fmt.Errorf("no wallpaper candidates found; run `themectl wallpaper set <filepath>` to choose a file")
 	}
 
 	options := make([]huh.Option[string], len(candidates))
@@ -143,7 +152,7 @@ func pickWallpaper(candidates []string) (string, error) {
 	form := huh.NewForm(
 		huh.NewGroup(
 			huh.NewSelect[string]().
-				Title("Wallpapers").
+				Title("Select a wallpaper").
 				Options(options...).
 				Filtering(true).
 				// Height(10).
@@ -159,10 +168,11 @@ func pickWallpaper(candidates []string) (string, error) {
 }
 
 func resolveThemeOrCurrent(cfg config.Config, st *store.Store, themeID string) (theme.Resolved, error) {
-	if themeID == "" {
-		current, err := store.ReadCurrent(cfg.CurrentFile())
+	usesCurrent := themeID == ""
+	if usesCurrent {
+		current, err := readCurrentTheme(cfg.CurrentFile())
 		if err != nil {
-			return theme.Resolved{}, fmt.Errorf("read current theme: %w", err)
+			return theme.Resolved{}, err
 		}
 		themeID = current
 	}
@@ -170,7 +180,10 @@ func resolveThemeOrCurrent(cfg config.Config, st *store.Store, themeID string) (
 	slog.Debug("resolving theme", "theme", themeID)
 	resolved, err := st.Resolve(themeID)
 	if err != nil {
-		return theme.Resolved{}, fmt.Errorf("resolve theme %q: %w", themeID, err)
+		if usesCurrent {
+			return theme.Resolved{}, fmt.Errorf("resolve current theme %q: %w; run `themectl set` to select an installed theme", strings.TrimSpace(themeID), err)
+		}
+		return theme.Resolved{}, fmt.Errorf("resolve theme %q: %w; run `themectl list` to view available themes", themeID, err)
 	}
 
 	return resolved, nil

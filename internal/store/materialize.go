@@ -37,7 +37,7 @@ func (s *Store) Materialize(ctx context.Context, themeId, targetDir string) erro
 	remote := res.RemoteAssets()
 	for name, p := range assets {
 		if _, ok := remote[name]; ok {
-			slog.Warn("bundled asset shadowed by url", "asset", name, "theme", themeId)
+			slog.Warn("bundled asset ignored", "asset", name, "theme", themeId, "reason", "remote asset has same name")
 			continue
 		}
 

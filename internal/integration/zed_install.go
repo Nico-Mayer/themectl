@@ -25,7 +25,7 @@ func (g gitInstaller) Ensure(url string) error {
 	}
 
 	if g.cache.Fresh(url, installCheckTTL) {
-		slog.Debug("zed extension recently checked, skipping", "url", url)
+		slog.Debug("zed extension check skipped", "url", url, "reason", "recently checked")
 		return nil
 	}
 

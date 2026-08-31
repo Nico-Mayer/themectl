@@ -13,7 +13,7 @@ type codeInstaller struct {
 
 func (c codeInstaller) Ensure(id string) error {
 	if c.cache.Fresh(id, installCheckTTL) {
-		slog.Debug("vscode extension recently checked, skipping", "id", id)
+		slog.Debug("vscode extension check skipped", "id", id, "reason", "recently checked")
 		return nil
 	}
 
@@ -21,7 +21,7 @@ func (c codeInstaller) Ensure(id string) error {
 	if err := c.install(id); err != nil {
 		return err
 	}
-	slog.Info("vscode extension ensured", "id", id)
+	slog.Info("vscode extension ready", "id", id)
 
 	return c.cache.Put(id, []byte("installed"))
 }

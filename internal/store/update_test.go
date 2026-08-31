@@ -28,9 +28,9 @@ func TestUpdate(t *testing.T) {
 	advanceUpstream(t, upstream)
 
 	asked := map[string]bool{}
-	confirm := func(name string) bool {
+	confirm := func(name string) (bool, error) {
 		asked[name] = true
-		return false
+		return false, nil
 	}
 
 	results, err := Update(themesDir, confirm)
@@ -62,11 +62,30 @@ func TestUpdate_confirmProceeds(t *testing.T) {
 
 	advanceUpstream(t, upstream)
 
-	_, err := Update(themesDir, func(string) bool { return true })
+	_, err := Update(themesDir, func(string) (bool, error) { return true, nil })
 	testutil.NoErr(t, err)
 
 	if _, err := os.Stat(filepath.Join(dirty, "extra.txt")); err != nil {
 		t.Errorf("approved dirty repo not updated: %v", err)
+	}
+}
+
+func TestUpdate_confirmError(t *testing.T) {
+	upstream := gitFixture(t, validThemeToml)
+	themesDir := t.TempDir()
+	dirty := filepath.Join(themesDir, "dirty")
+	gitClone(t, upstream, dirty)
+	testutil.NoErr(t, os.WriteFile(filepath.Join(dirty, "theme.toml"),
+		[]byte(validThemeToml+"\n# local tweak\n"), 0o644))
+
+	confirmErr := errors.New("terminal unavailable")
+	results, err := Update(themesDir, func(string) (bool, error) { return false, confirmErr })
+	testutil.NoErr(t, err)
+	if len(results) != 1 || results[0].Status != UpdateDeclined {
+		t.Fatalf("results = %v, want one declined update", results)
+	}
+	if !errors.Is(results[0].Err, confirmErr) {
+		t.Fatalf("result error = %v, want wrapped confirmation error", results[0].Err)
 	}
 }
 

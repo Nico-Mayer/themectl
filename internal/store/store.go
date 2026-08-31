@@ -40,7 +40,7 @@ func NewStore(fsys fs.FS, fetcher Fetcher) *Store {
 func (s *Store) Resolve(id string) (theme.Resolved, error) {
 	famName, variantName, found := strings.Cut(id, "/")
 	if !found {
-		return theme.Resolved{}, fmt.Errorf("theme id %q: want \"family/variant\"", id)
+		return theme.Resolved{}, fmt.Errorf("theme ID %q must use family/variant format", id)
 	}
 
 	tf, err := s.themeFile(famName)
@@ -50,7 +50,7 @@ func (s *Store) Resolve(id string) (theme.Resolved, error) {
 
 	vs, ok := tf.Variants[variantName]
 	if !ok {
-		return theme.Resolved{}, fmt.Errorf("theme %s: variant %q not declared in theme.toml", id, variantName)
+		return theme.Resolved{}, fmt.Errorf("theme %q does not define variant %q", id, variantName)
 	}
 
 	return theme.Resolve(
@@ -101,7 +101,7 @@ func (s *Store) PickRandom(a theme.Appearance) (theme.Resolved, error) {
 	}
 
 	if len(candidates) == 0 {
-		return theme.Resolved{}, fmt.Errorf("no matching candidates found for appearance %v", a)
+		return theme.Resolved{}, fmt.Errorf("no themes match appearance %q", a)
 	}
 
 	return candidates[rand.IntN(len(candidates))], nil
@@ -147,7 +147,7 @@ func (s *Store) resolveAll() ([]theme.Resolved, error) {
 func (s *Store) resolveFamily(name string) []theme.Resolved {
 	tf, err := s.themeFile(name)
 	if err != nil {
-		slog.Debug("skipping unresolvable family", "family", name, "err", err)
+		slog.Debug("theme family skipped", "family", name, "reason", "cannot resolve", "err", err)
 		return nil
 	}
 
@@ -157,7 +157,7 @@ func (s *Store) resolveFamily(name string) []theme.Resolved {
 	for _, v := range slices.Sorted(maps.Keys(tf.Variants)) {
 		res, err := theme.Resolve(fam, theme.Variant{Name: v, Spec: tf.Variants[v]})
 		if err != nil {
-			slog.Debug("skipping unresolvable theme", "theme", name+"/"+v, "err", err)
+			slog.Debug("theme skipped", "theme", name+"/"+v, "reason", "cannot resolve", "err", err)
 			continue
 		}
 		out = append(out, res)

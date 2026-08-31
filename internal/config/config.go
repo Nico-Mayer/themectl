@@ -29,7 +29,7 @@ func Load(root string) (Config, error) {
 
 	cacheRoot, err := os.UserCacheDir()
 	if err != nil {
-		slog.Warn("resolve cache dir, using temp dir as cache root", "err", err)
+		slog.Warn("cache directory unavailable; using temporary directory", "err", err)
 		cacheRoot = os.TempDir()
 	}
 

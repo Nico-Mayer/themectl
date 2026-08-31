@@ -20,7 +20,7 @@ func (a app) listCmd() *cli.Command {
 	return &cli.Command{
 		Name:    "list",
 		Aliases: []string{"ls"},
-		Usage:   "List all available themes",
+		Usage:   "List available themes",
 		Flags: append(
 			appearanceFlags(),
 			jsonFlag(),
@@ -33,11 +33,14 @@ func (a app) listCmd() *cli.Command {
 
 			all, err := a.store.List(appearance)
 			if err != nil {
-				return err
+				return fmt.Errorf("list themes: %w", err)
 			}
 
 			if c.Bool("json") {
-				return printThemesJSON(all)
+				if err := printThemesJSON(all); err != nil {
+					return fmt.Errorf("write themes as JSON: %w", err)
+				}
+				return nil
 			}
 
 			if !isatty.IsTerminal(os.Stdout.Fd()) {
@@ -78,14 +81,17 @@ func renderThemeList(themes []theme.Resolved, current string) string {
 	}
 	width += listColGap
 
-	lines := []string{ui.Muted.Render(fmt.Sprintf("  %-*s%s", width, "Theme", "Appearance"))}
+	lines := []string{ui.Muted.Render(fmt.Sprintf("  %-*s%-12s%s", width, "Theme", "Appearance", "Status"))}
 	for _, t := range themes {
 		id := fmt.Sprintf("  %-*s", width, t.ID())
+		status := ""
 		if t.ID() == current {
 			id = ui.Accent.Render(fmt.Sprintf("● %-*s", width, t.ID()))
+			status = ui.Accent.Render("current")
 		}
 
-		lines = append(lines, id+ui.Appearance(t.Appearance).Render(string(t.Appearance)))
+		appearance := ui.Appearance(t.Appearance).Render(fmt.Sprintf("%-12s", t.Appearance))
+		lines = append(lines, id+appearance+status)
 	}
 
 	return strings.Join(lines, "\n")

@@ -21,7 +21,7 @@ func ApplyAll(integrations []Integration, t theme.Resolved) error {
 						slog.Warn("integration reset failed", "integration", in.Name(), "err", err)
 					}
 				}
-				slog.Info("integration skipped, theme does not support it", "integration", in.Name())
+				slog.Info("integration skipped", "integration", in.Name(), "reason", "current theme does not support it")
 				return
 			}
 			if err := in.Check(); err != nil {
@@ -30,7 +30,6 @@ func ApplyAll(integrations []Integration, t theme.Resolved) error {
 			}
 			slog.Debug("applying integration", "integration", in.Name())
 			if err := in.Apply(t); err != nil {
-				slog.Warn("integration failed", "integration", in.Name(), "err", err)
 				errs[i] = fmt.Errorf("%s: %w", in.Name(), err)
 			}
 		})
@@ -39,7 +38,7 @@ func ApplyAll(integrations []Integration, t theme.Resolved) error {
 
 	for i, err := range warnErrors {
 		if err != nil {
-			slog.Warn("integration unhealthy, skipping", "integration", integrations[i].Name(), "err", err)
+			slog.Warn("integration skipped", "integration", integrations[i].Name(), "reason", "unhealthy", "err", err)
 		}
 	}
 

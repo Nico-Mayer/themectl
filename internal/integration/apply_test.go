@@ -1,7 +1,10 @@
 package integration
 
 import (
+	"bytes"
 	"errors"
+	"log/slog"
+	"strings"
 	"testing"
 
 	"github.com/Nico-Mayer/themectl/internal/theme"
@@ -35,6 +38,11 @@ func (f fakeIntegration) Apply(t theme.Resolved) error {
 }
 
 func TestEngine_ApplyAll_runsAllAndAggregatesErrors(t *testing.T) {
+	var logs bytes.Buffer
+	previous := slog.Default()
+	slog.SetDefault(slog.New(slog.NewTextHandler(&logs, nil)))
+	t.Cleanup(func() { slog.SetDefault(previous) })
+
 	var ranA, ranC bool
 	integrations := []Integration{
 		fakeIntegration{name: "a", applied: &ranA},
@@ -48,6 +56,9 @@ func TestEngine_ApplyAll_runsAllAndAggregatesErrors(t *testing.T) {
 	}
 	if !ranA || !ranC {
 		t.Errorf("a failing integration must not stop the others (a=%v c=%v)", ranA, ranC)
+	}
+	if strings.Contains(logs.String(), "integration failed") {
+		t.Errorf("returned integration error was also logged: %s", logs.String())
 	}
 }
 

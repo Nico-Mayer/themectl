@@ -8,18 +8,18 @@ system appearance in a single, concurrent pass.
 ## Usage
 
 ```bash
-themectl list                        # list all themes (ls)
-themectl set <theme-name>            # apply a theme (use, apply)
-themectl set random                  # random theme  (--light / --dark to filter)
-themectl current                     # print active theme
-themectl wallpaper                   # pick from all available wallpapers for this theme
-themectl wallpaper --random          # reshuffle wallpaper for current theme
-themectl install <git-url>           # install a theme from a git repo (--name, --force)
-themectl uninstall <theme-family>    # uninstalls the selected theme family from
-themectl update                      # updates all themes installed via git
-themectl refresh                     # reapply all integrations for current theme
-themectl doctor                      # report current theme, settings, and integration status
-themectl cache clear                 # delete all cached files (remote assets)
+themectl list                         # list available themes (ls)
+themectl set <theme-id>               # set and apply current theme (use, apply)
+themectl set random                   # set random theme (--light or --dark to filter)
+themectl current                      # show current theme
+themectl wallpaper                    # select wallpaper from current theme
+themectl wallpaper set --random       # select random wallpaper from current theme
+themectl install <git-url>            # install theme family (--name, --force)
+themectl uninstall <theme-family>     # uninstall theme family
+themectl update                       # update theme families installed from Git
+themectl refresh                      # reapply current theme to all integrations
+themectl doctor                       # show theme, settings, and integration status
+themectl cache clear                  # delete cached remote assets
 ```
 
 ## Configuration
@@ -141,19 +141,19 @@ target = "~/.dotfiles/nvim/plugin/99_theme.lua"
 
 ### Features
 
-- `create` command: TUI form that scaffolds a new theme folder in themesDir()
-- Add a option in settings to make a integration exclusicve for one operating system or exlude for one
+- `create` command: TUI form that scaffolds a new theme folder in `themesDir()`
+- Add a settings option to include or exclude an integration by operating system
 
 ### Missing integrations
 
-- [ ] Other terminal emulators _(low)_ - Ghostty, Rio and Windows Terminal are covered
-- [ ] Chromium verify feasibility, may need elevated privileges on macOS to set policies (Helium and other Chromium forks)
+- [ ] Other terminal emulators _(low)_ — Ghostty, Rio, and Windows Terminal are covered
+- [ ] Chromium: verify feasibility; setting policies may need elevated privileges on macOS (Helium and other Chromium forks)
 
 ### Quick wins
 
 ### Maybe
 
-- Expose a color palette per theme so the raycast extension can display it in the theme picker
-- `sha256` field next to `url` to pin remote assets against upstream tampering
-- Philips Hue integration?
-- Declare some themes as favorites ?
+- Expose a color palette per theme so the Raycast extension can display it in the theme picker
+- Add a `sha256` field next to `url` to pin remote assets against upstream tampering
+- Add Philips Hue integration
+- Allow users to mark themes as favorites

@@ -30,12 +30,12 @@ func New(cfg config.Config, store *store.Store, integrations []integration.Integ
 
 	return &urfaveCli.Command{
 		Name:                  "themectl",
-		Usage:                 "Manage and apply themes across your tools",
+		Usage:                 "Manage themes across your tools",
 		EnableShellCompletion: true,
 		Flags: []urfaveCli.Flag{
 			&urfaveCli.BoolFlag{
 				Name:    "verbose",
-				Usage:   "Prints more logs to stderr",
+				Usage:   "Show detailed logs on stderr",
 				Aliases: []string{"v"},
 			},
 		},

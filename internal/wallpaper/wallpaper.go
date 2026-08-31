@@ -1,6 +1,7 @@
 package wallpaper
 
 import (
+	"errors"
 	"log/slog"
 	"math/rand/v2"
 	"os"
@@ -16,7 +17,10 @@ const (
 	suffix = "wallpaper"
 )
 
-var allowedFileTypes = []string{".jpeg", ".jpg", ".png", ".heic"}
+var (
+	allowedFileTypes = []string{".jpeg", ".jpg", ".png", ".heic"}
+	ErrNoCandidates  = errors.New("no wallpaper candidates found")
+)
 
 type Manager struct {
 	ThemesDir           string
@@ -36,8 +40,7 @@ func (m Manager) ApplyRandom(t theme.Resolved) error {
 
 func (m Manager) SetRandomFrom(candidates []string) error {
 	if len(candidates) == 0 {
-		slog.Debug("no wallpaper candidates found")
-		return nil
+		return ErrNoCandidates
 	}
 
 	current, err := rjWall.Get()

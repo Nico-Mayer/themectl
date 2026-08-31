@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"maps"
 	"os"
@@ -21,18 +22,21 @@ import (
 func (a app) currentCmd() *cli.Command {
 	return &cli.Command{
 		Name:  "current",
-		Usage: "get the current active theme",
+		Usage: "Show the current theme",
 		Flags: []cli.Flag{
 			jsonFlag(),
 		},
 		Action: func(ctx context.Context, c *cli.Command) error {
-			curr, err := store.ReadCurrent(a.cfg.CurrentFile())
+			curr, err := readCurrentTheme(a.cfg.CurrentFile())
 			if err != nil {
 				return err
 			}
 
 			if c.Bool("json") {
-				return printCurrentJSON(curr, a.store)
+				if err := printCurrentJSON(curr, a.store); err != nil {
+					return fmt.Errorf("write current theme as JSON: %w", err)
+				}
+				return nil
 			}
 
 			if !isatty.IsTerminal(os.Stdout.Fd()) {
@@ -42,7 +46,7 @@ func (a app) currentCmd() *cli.Command {
 
 			resolved, err := a.store.Resolve(curr)
 			if err != nil {
-				return err
+				return fmt.Errorf("resolve current theme %q: %w; run `themectl set` to select an installed theme", strings.TrimSpace(curr), err)
 			}
 
 			fmt.Println(renderThemeDetails(resolved))
@@ -50,6 +54,17 @@ func (a app) currentCmd() *cli.Command {
 			return nil
 		},
 	}
+}
+
+func readCurrentTheme(path string) (string, error) {
+	current, err := store.ReadCurrent(path)
+	if err == nil {
+		return current, nil
+	}
+	if errors.Is(err, os.ErrNotExist) {
+		return "", fmt.Errorf("read current theme: %w; run `themectl set` to select a theme", err)
+	}
+	return "", fmt.Errorf("read current theme: %w", err)
 }
 
 func renderThemeDetails(r theme.Resolved) string {
@@ -66,7 +81,7 @@ func renderThemeDetails(r theme.Resolved) string {
 	if len(themes) > 0 {
 		rows = append(rows, []string{})
 		themesRow = len(rows)
-		rows = append(rows, []string{"Themes:", ""})
+		rows = append(rows, []string{"Integration themes", ""})
 		for _, k := range slices.Sorted(maps.Keys(themes)) {
 			rows = append(rows, []string{k, themes[k]})
 		}
@@ -104,7 +119,7 @@ func printCurrentJSON(current string, store *store.Store) error {
 
 	resolved, err := store.Resolve(current)
 	if err != nil {
-		return err
+		return fmt.Errorf("resolve current theme %q: %w; run `themectl set` to select an installed theme", strings.TrimSpace(current), err)
 	}
 
 	return json.NewEncoder(os.Stdout).Encode(themeJSON{resolved.ID(), resolved.Family, resolved.Variant, resolved.Appearance})

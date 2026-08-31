@@ -68,7 +68,7 @@ func newVSCode(cfg config.Config) Integration {
 		ConfigFile: cfg.Settings.VSCode.ConfigFileOr(appConfigFile("vscode", "settings.json")),
 	}
 	if _, err := exec.LookPath("code"); err != nil {
-		slog.Debug("vscode extension install disabled, code CLI not found", "err", err)
+		slog.Debug("vscode extension installation disabled", "reason", "code CLI not found", "err", err)
 		return v
 	}
 

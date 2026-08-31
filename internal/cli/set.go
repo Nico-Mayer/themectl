@@ -18,12 +18,12 @@ func (a app) setCmd() *cli.Command {
 	return &cli.Command{
 		Name:      "set",
 		Aliases:   []string{"use", "apply"},
-		Usage:     "Set the active theme",
+		Usage:     "Set and apply the current theme",
 		ArgsUsage: "<theme>",
 		Arguments: []cli.Argument{
 			&cli.StringArg{
 				Name:      "theme",
-				UsageText: "theme name (see 'themectl list')",
+				UsageText: "Theme ID (run `themectl list` to view themes)",
 			},
 		},
 		Commands: []*cli.Command{a.setRandom()},
@@ -33,13 +33,13 @@ func (a app) setCmd() *cli.Command {
 				return nil
 			}
 			if err != nil {
-				return err
+				return fmt.Errorf("select theme: %w", err)
 			}
 
 			slog.Debug("resolving theme", "theme", themeName)
 			res, err := a.store.Resolve(themeName)
 			if err != nil {
-				return err
+				return fmt.Errorf("resolve theme %q: %w; run `themectl list` to view available themes", themeName, err)
 			}
 			return applyTheme(ctx, res, a)
 		},
@@ -61,7 +61,7 @@ func (a app) setCmd() *cli.Command {
 func (a app) setRandom() *cli.Command {
 	return &cli.Command{
 		Name:  "random",
-		Usage: "sets a random theme",
+		Usage: "Set a random theme",
 		Flags: appearanceFlags(),
 		Action: func(ctx context.Context, c *cli.Command) error {
 			appearance, err := appearanceFromFlags(c)
@@ -71,7 +71,7 @@ func (a app) setRandom() *cli.Command {
 
 			resolved, err := a.store.PickRandom(appearance)
 			if err != nil {
-				return err
+				return fmt.Errorf("select random theme: %w; run `themectl list` to view available themes", err)
 			}
 			return applyTheme(ctx, resolved, a)
 		},
@@ -82,28 +82,30 @@ func applyTheme(ctx context.Context, resolvedTheme theme.Resolved, app app) erro
 	slog.Debug("materializing theme", "theme", resolvedTheme.ID(), "dir", app.cfg.CurrentDir())
 	err := ui.Spin("Applying theme", func() error {
 		if err := app.store.Materialize(ctx, resolvedTheme.ID(), app.cfg.CurrentDir()); err != nil {
-			return err
+			return fmt.Errorf("prepare theme: %w", err)
 		}
 		if err := store.WriteCurrent(app.cfg.CurrentFile(), resolvedTheme.ID()); err != nil {
-			return err
+			return fmt.Errorf("save current theme: %w", err)
 		}
-
-		return integration.ApplyAll(app.integrations, resolvedTheme)
+		if err := integration.ApplyAll(app.integrations, resolvedTheme); err != nil {
+			return fmt.Errorf("apply integrations: %w", err)
+		}
+		return nil
 	})
 
 	if err != nil {
-		return err
+		return fmt.Errorf("apply theme %q: %w", resolvedTheme.ID(), err)
 	}
-	slog.Info("theme set", "theme", resolvedTheme.ID())
+	slog.Info("theme applied", "theme", resolvedTheme.ID())
 	return nil
 }
 
 func pickTheme(store *store.Store) (string, error) {
 	all, err := store.IDs()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("list themes: %w", err)
 	}
-	return ui.Select("Themes", all)
+	return ui.Select("Select a theme", all)
 }
 
 func resolveThemeArg(arg string, store *store.Store) (string, error) {

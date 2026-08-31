@@ -78,7 +78,7 @@ func newZed(cfg config.Config) Integration {
 
 	usrConfigDir, err := os.UserConfigDir()
 	if err != nil {
-		slog.Warn("zed extension install disabled, user config dir not found", "err", err)
+		slog.Warn("zed extension installation disabled", "reason", "user configuration directory not found", "err", err)
 		return z
 	}
 	z.Installer = gitInstaller{

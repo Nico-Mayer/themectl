@@ -68,7 +68,7 @@ func localConfigDir() string {
 func userConfigDir() string {
 	dir, err := os.UserConfigDir()
 	if err != nil {
-		slog.Warn("user config dir not found", "error", err)
+		slog.Warn("user configuration directory not found", "err", err)
 	}
 	return dir
 }
@@ -76,7 +76,7 @@ func userConfigDir() string {
 func homeDir() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		slog.Warn("user home dir not found", "error", err)
+		slog.Warn("user home directory not found", "err", err)
 	}
 	return home
 }

@@ -12,7 +12,7 @@ import (
 func (a app) cacheCmd() *cli.Command {
 	return &cli.Command{
 		Name:     "cache",
-		Usage:    "Manage the themectl cache",
+		Usage:    "Show or manage cached files",
 		Commands: []*cli.Command{a.clearCacheCmd()},
 		Action: func(ctx context.Context, c *cli.Command) error {
 			fmt.Println(a.cfg.CacheDir())
@@ -27,7 +27,7 @@ func (a app) clearCacheCmd() *cli.Command {
 		Usage: "Delete all cached files",
 		Action: func(ctx context.Context, c *cli.Command) error {
 			if err := cache.New(a.cfg.CacheDir()).Clear(); err != nil {
-				return err
+				return fmt.Errorf("clear cache: %w", err)
 			}
 			slog.Info("cache cleared")
 			return nil

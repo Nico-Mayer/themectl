@@ -64,8 +64,13 @@ func TestInstall_derivesNameFromURL(t *testing.T) {
 func TestInstall_rejectsBadName(t *testing.T) {
 	themesDir := t.TempDir()
 	for _, name := range []string{"Bad", "../escape", ".hidden", "has space"} {
-		if _, err := Install(themesDir, "unused", name, false); err == nil {
+		_, err := Install(themesDir, "unused", name, false)
+		if err == nil {
 			t.Errorf("name %q: expected error", name)
+			continue
+		}
+		if !strings.Contains(err.Error(), "must start") || !strings.Contains(err.Error(), "lowercase") {
+			t.Errorf("name %q: error %q does not explain requirement", name, err)
 		}
 	}
 }
@@ -78,8 +83,8 @@ func TestInstall_existingWithoutForce(t *testing.T) {
 	testutil.NoErr(t, err)
 
 	_, err = Install(themesDir, repo, "fam", false)
-	if err == nil || !strings.Contains(err.Error(), "already installed") {
-		t.Errorf("expected already-installed error, got %v", err)
+	if err == nil || !strings.Contains(err.Error(), "already installed") || !strings.Contains(err.Error(), "--force") {
+		t.Errorf("expected already-installed error with --force recovery, got %v", err)
 	}
 }
 
@@ -185,7 +190,11 @@ func TestUninstall(t *testing.T) {
 }
 
 func TestUninstall_notInstalled(t *testing.T) {
-	if err := Uninstall(t.TempDir(), "missing"); err == nil {
-		t.Error("expected error for theme that is not installed")
+	err := Uninstall(t.TempDir(), "missing")
+	if err == nil {
+		t.Fatal("expected error for theme that is not installed")
+	}
+	if !strings.Contains(err.Error(), "theme family \"missing\"") || !strings.Contains(err.Error(), "`themectl uninstall`") {
+		t.Errorf("error %q does not identify family and recovery command", err)
 	}
 }

@@ -1,7 +1,6 @@
 package store
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -22,7 +21,7 @@ func Install(themesDir, url, name string, force bool) (string, error) {
 	}
 
 	if !familyNamePattern.MatchString(name) {
-		return "", errors.New("name not allowed")
+		return "", fmt.Errorf("theme family name %q must start with a lowercase letter or number and contain only lowercase letters, numbers, dots, underscores, or hyphens", name)
 	}
 
 	if err := git.Installed(); err != nil {
@@ -30,12 +29,12 @@ func Install(themesDir, url, name string, force bool) (string, error) {
 	}
 
 	if err := os.MkdirAll(themesDir, 0o755); err != nil {
-		return "", fmt.Errorf("unable to create themes directory: %w", err)
+		return "", fmt.Errorf("create themes directory: %w", err)
 	}
 
 	temp, err := os.MkdirTemp(themesDir, ".install-*")
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("create temporary install directory: %w", err)
 	}
 	defer os.RemoveAll(temp)
 
@@ -46,7 +45,7 @@ func Install(themesDir, url, name string, force bool) (string, error) {
 
 	data, err := os.ReadFile(filepath.Join(dst, "theme.toml"))
 	if err != nil {
-		return "", fmt.Errorf("not a theme repo (not readable theme.toml): %w", err)
+		return "", fmt.Errorf("repository does not contain a readable theme.toml: %w", err)
 	}
 
 	var tf theme.ThemeFile
@@ -64,20 +63,20 @@ func Install(themesDir, url, name string, force bool) (string, error) {
 		}
 	}
 	if !ok {
-		return "", errors.New("theme repo has no resolvable variant")
+		return "", fmt.Errorf("theme repository has no resolvable variants")
 	}
 
 	target := filepath.Join(themesDir, name)
 	if _, err := os.Stat(target); err == nil {
 		if !force {
-			return "", fmt.Errorf("theme family %q already installed (use --force to replace)", name)
+			return "", fmt.Errorf("theme family %q is already installed; rerun with --force to replace it", name)
 		}
 		if err := os.RemoveAll(target); err != nil {
-			return "", fmt.Errorf("unable to remove existing theme: %w", err)
+			return "", fmt.Errorf("remove existing theme family: %w", err)
 		}
 	}
 	if err := os.Rename(dst, target); err != nil {
-		return "", fmt.Errorf("unable to install theme: %w", err)
+		return "", fmt.Errorf("install theme family: %w", err)
 	}
 
 	return name, nil
@@ -87,11 +86,11 @@ func Uninstall(themesDir, name string) error {
 	target := filepath.Join(themesDir, name)
 
 	if _, err := os.Stat(target); os.IsNotExist(err) {
-		return fmt.Errorf("theme %q is not installed", name)
+		return fmt.Errorf("theme family %q is not installed; run `themectl uninstall` to select an installed theme family", name)
 	}
 
 	if err := os.RemoveAll(target); err != nil {
-		return fmt.Errorf("unable to remove theme: %w", err)
+		return fmt.Errorf("remove theme family: %w", err)
 	}
 
 	return nil

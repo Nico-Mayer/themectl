@@ -25,14 +25,14 @@ type UpdateResult struct {
 	Err    error
 }
 
-func Update(themesDir string, confirm func(string) bool) ([]UpdateResult, error) {
+func Update(themesDir string, confirm func(string) (bool, error)) ([]UpdateResult, error) {
 	if err := git.Installed(); err != nil {
 		return nil, err
 	}
 
 	entries, err := os.ReadDir(themesDir)
 	if err != nil {
-		return nil, fmt.Errorf("unable to read themes directory: %w", err)
+		return nil, fmt.Errorf("read themes directory: %w", err)
 	}
 
 	var names []string
@@ -69,8 +69,21 @@ func Update(themesDir string, confirm func(string) bool) ([]UpdateResult, error)
 		switch {
 		case !infos[i].isRepo:
 			results[i] = UpdateResult{Name: name, Status: UpdateSkipped}
-		case infos[i].dirty && !confirm(name):
-			results[i] = UpdateResult{Name: name, Status: UpdateDeclined}
+		case infos[i].dirty:
+			confirmed, err := confirm(name)
+			if err != nil {
+				results[i] = UpdateResult{
+					Name:   name,
+					Status: UpdateDeclined,
+					Err:    fmt.Errorf("confirm update: %w", err),
+				}
+				continue
+			}
+			if !confirmed {
+				results[i] = UpdateResult{Name: name, Status: UpdateDeclined}
+				continue
+			}
+			toPull = append(toPull, i)
 		default:
 			toPull = append(toPull, i)
 		}

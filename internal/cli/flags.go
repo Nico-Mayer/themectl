@@ -10,7 +10,7 @@ import (
 func jsonFlag() *cli.BoolFlag {
 	return &cli.BoolFlag{
 		Name:  "json",
-		Usage: "output in JSON format",
+		Usage: "Print output as JSON",
 	}
 }
 
@@ -19,12 +19,12 @@ func appearanceFlags() []cli.Flag {
 		&cli.BoolFlag{
 			Name:    "light",
 			Aliases: []string{"l"},
-			Usage:   "only include light themes",
+			Usage:   "Include only light themes",
 		},
 		&cli.BoolFlag{
 			Name:    "dark",
 			Aliases: []string{"d"},
-			Usage:   "only include dark themes",
+			Usage:   "Include only dark themes",
 		},
 	}
 }
@@ -33,7 +33,7 @@ func appearanceFromFlags(c *cli.Command) (theme.Appearance, error) {
 	light, dark := c.Bool("light"), c.Bool("dark")
 	switch {
 	case light && dark:
-		return "", fmt.Errorf("cannot use --light and --dark together")
+		return "", fmt.Errorf("--light and --dark cannot be used together")
 	case light:
 		return theme.Light, nil
 	case dark:

@@ -1,6 +1,7 @@
 package wallpaper
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"slices"
@@ -95,6 +96,14 @@ func TestPickWallpaper(t *testing.T) {
 		got := pickWallpaper(nil, "/w/a.png")
 		testutil.Equal(t, got, "/w/a.png")
 	})
+}
+
+func TestManager_SetRandomFrom_NoCandidates(t *testing.T) {
+	manager := Manager{}
+	err := manager.SetRandomFrom(nil)
+	if !errors.Is(err, ErrNoCandidates) {
+		t.Fatalf("SetRandomFrom error = %v, want ErrNoCandidates", err)
+	}
 }
 
 func mkDirAll(t *testing.T, root string, rel ...string) {

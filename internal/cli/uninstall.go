@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"strings"
 
@@ -18,24 +19,43 @@ func (a app) uninstallCmd() *cli.Command {
 		Usage:     "Uninstall a theme family",
 		ArgsUsage: "<name>",
 		Arguments: []cli.Argument{
-			&cli.StringArg{Name: "family", UsageText: "name of the theme family to uninstall"},
+			&cli.StringArg{Name: "family", UsageText: "Theme family to uninstall"},
 		},
 		Action: func(ctx context.Context, c *cli.Command) error {
-			themeFamily, err := resolveThemeFamilyArg(c.StringArg("family"), a.store)
+			familyArg := c.StringArg("family")
+			themeFamily, err := resolveThemeFamilyArg(familyArg, a.store)
 			if errors.Is(err, huh.ErrUserAborted) {
 				return nil
 			}
 			if err != nil {
-				return err
+				return fmt.Errorf("select theme family: %w", err)
+			}
+
+			if familyArg == "" {
+				confirmed, err := ui.Confirm(uninstallConfirmation(themeFamily))
+				if errors.Is(err, huh.ErrUserAborted) {
+					return nil
+				}
+				if err != nil {
+					return fmt.Errorf("confirm uninstall of theme family %q: %w", themeFamily, err)
+				}
+				if !confirmed {
+					slog.Info("theme family kept", "family", themeFamily, "reason", "uninstall canceled")
+					return nil
+				}
 			}
 
 			if err := store.Uninstall(a.cfg.ThemesDir(), themeFamily); err != nil {
-				return err
+				return fmt.Errorf("uninstall theme family %q: %w", themeFamily, err)
 			}
-			slog.Info("theme uninstalled", "family", themeFamily)
+			slog.Info("theme family uninstalled", "family", themeFamily)
 			return nil
 		},
 	}
+}
+
+func uninstallConfirmation(name string) string {
+	return fmt.Sprintf("Uninstall theme family %q? This deletes its local files and cannot be undone.", name)
 }
 
 func resolveThemeFamilyArg(arg string, store *store.Store) (string, error) {
@@ -48,7 +68,7 @@ func resolveThemeFamilyArg(arg string, store *store.Store) (string, error) {
 func pickThemeFamily(store *store.Store) (string, error) {
 	all, err := store.IDs()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("list theme families: %w", err)
 	}
 
 	var families []string
@@ -61,5 +81,5 @@ func pickThemeFamily(store *store.Store) (string, error) {
 		seen[family] = true
 		families = append(families, family)
 	}
-	return ui.Select("Themes", families)
+	return ui.Select("Select a theme family", families)
 }

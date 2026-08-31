@@ -41,13 +41,16 @@ func (a app) doctorCmd() *cli.Command {
 	return &cli.Command{
 		Name:    "doctor",
 		Aliases: []string{"status"},
-		Usage:   "report current theme, settings, and integration status",
+		Usage:   "Show theme, settings, and integration status",
 		Flags:   []cli.Flag{jsonFlag()},
 		Action: func(ctx context.Context, c *cli.Command) error {
 			report := buildDoctorReport(a.cfg, a.store)
 
 			if c.Bool("json") {
-				return json.NewEncoder(os.Stdout).Encode(report)
+				if err := json.NewEncoder(os.Stdout).Encode(report); err != nil {
+					return fmt.Errorf("write status as JSON: %w", err)
+				}
+				return nil
 			}
 
 			return renderDoctorReport(report)
@@ -151,7 +154,7 @@ func renderKVRows(rows []kvRow) string {
 func settingsRows(r doctorReport) []kvRow {
 	configFile := r.ConfigFile
 	if !r.ConfigFileExists {
-		configFile = ui.Muted.Render("(none - using built-in defaults)")
+		configFile = ui.Muted.Render("Not configured; using built-in defaults")
 	}
 	rows := []kvRow{
 		{"Root", r.Root},
@@ -159,7 +162,7 @@ func settingsRows(r doctorReport) []kvRow {
 		{"Cache", r.Cache},
 	}
 	if !r.ConfigFileExists {
-		rows = append(rows, kvRow{"", ui.Muted.Render("create " + r.ConfigFile + " to customize")})
+		rows = append(rows, kvRow{"", ui.Muted.Render("Create " + r.ConfigFile + " to customize")})
 	}
 	return rows
 }
@@ -168,13 +171,13 @@ func themeRows(r doctorReport) []kvRow {
 	currentTheme := r.CurrentTheme
 	switch {
 	case currentTheme == "":
-		currentTheme = ui.Muted.Render("(none set - run `themectl set`)")
+		currentTheme = ui.Muted.Render("Not set; run `themectl set` to select a theme")
 	case !r.CurrentThemeFound:
-		currentTheme += "  " + ui.Danger.Render("(not found in themes dir)")
+		currentTheme += "  " + ui.Danger.Render("Not found in themes directory")
 	}
 	installed := fmt.Sprintf("%d", r.InstalledThemes)
 	if r.InstalledThemes == 0 {
-		installed = ui.Danger.Render("0 - add themes under " + r.Root + "/themes")
+		installed = ui.Danger.Render("0; run `themectl install <git-url>` to install a theme family")
 	}
 	return []kvRow{
 		{"Current", currentTheme},
@@ -201,15 +204,15 @@ func renderIntegrations(r doctorReport) string {
 		case !s.Enabled:
 			lines = append(lines, integrationLine(ui.Muted, "○", s.Name, "available", width))
 		case !s.Healthy:
-			lines = append(lines, integrationLine(ui.Warning, "!", s.Name, s.Detail, width))
+			lines = append(lines, integrationLine(ui.Warning, "!", s.Name, "unhealthy: "+s.Detail, width))
 		case s.Supported != nil && !*s.Supported:
-			lines = append(lines, integrationLine(ui.Muted, "●", s.Name, "enabled - unused by current theme", width))
+			lines = append(lines, integrationLine(ui.Muted, "●", s.Name, "enabled; unused by current theme", width))
 		default:
 			lines = append(lines, integrationLine(ui.Success, "●", s.Name, "enabled", width))
 		}
 	}
 	for _, name := range r.Unknown {
-		lines = append(lines, integrationLine(ui.Danger, "✗", name, "unknown - enabled but not registered", width))
+		lines = append(lines, integrationLine(ui.Danger, "✗", name, "unknown; enabled but not registered", width))
 	}
 	return strings.Join(lines, "\n")
 }
