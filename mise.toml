@@ -1,11 +1,16 @@
 [tools]
 "go:gotest.tools/gotestsum" = "latest"
 goreleaser = "latest"
-# "npm:@fission-ai/openspec" = "1.11.0" //
+"npm:@fission-ai/openspec" = "latest"
 svu = "latest"
+hk = { version = "latest", workflow = "release.yml" }
 
 [shell_alias]
 mr = "mise run"
+
+[settings]
+skills.dir = ".agents/skills"
+skills.auto_sync = true
 
 [tasks."."]
 description = "Runs the app"
@@ -20,17 +25,13 @@ description = "Compile the themectl binary"
 run = "go build -o themectl ./cmd/themectl"
 
 [tasks.install]
-description = "Build, install to /usr/local/bin, and refresh fish completions"
+description = "Builds and installes the app"
 depends = ["build"]
 run = """
 sudo mv -f themectl /usr/local/bin/themectl
 themectl completion fish > ~/.config/fish/completions/themectl.fish
 """
-
-[tasks."install:windows"]
-description = "Build, install to ~/bin/themectl.exe (windows)"
-depends = ["build"]
-run = """
+run_windows = """
 move themectl %USERPROFILE%\\bin\\themectl.exe
 """
 
@@ -75,3 +76,41 @@ run = "go generate ./..."
 description = "Regenerate JSON schemas and fail on drift"
 depends = ["schema:gen"]
 run = "git diff --exit-code schemas/"
+
+[tasks."skills:mise"]
+description = "Sync mise skills"
+hide = true
+run = [
+  "mise skills sync",
+  "mise skills sync --dir .claude/skills",
+]
+
+[tasks."skills:skillshare"]
+description = "Sync skillshare skills"
+run = [
+  "skillshare install -p",
+  "skillshare sync -p",
+]
+
+[tasks."skills:openspec"]
+description = "Sync openspec skills"
+hide = true
+run = [
+  "openspec init --tools claude",
+  "openspec init --tools agents",
+]
+
+[tasks."skills:sync"]
+description = "Sync all skills"
+# Sequential: subtasks write to the same skill dirs
+run = [
+  { task = "skills:mise" },
+  { task = "skills:skillshare" },
+  { task = "skills:openspec" },
+]
+
+[hooks]
+postinstall = [
+  "mise run skills:sync",
+  "hk install",
+]
